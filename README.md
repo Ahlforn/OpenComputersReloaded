@@ -1,5 +1,9 @@
 ![Welcome to OpenComputers](assets/misc/banner.png)
 
+> **Note:** This repository is an independent fork and is **not affiliated with or endorsed by the original OpenComputers project or its authors**. A version of this mod targeting the latest version of Minecraft is currently in development here.
+
+
+
 OpenComputers is a Minecraft mod that adds programmable computers and robots to the game. The built-in computer implementation uses Lua 5.2 and is fully persistent. This means programs will continue running across reloads. For more information, please [see the wiki][wiki]. Feel invited to visit the [community forums][forums] or drop by in the [IRC channel #oc on esper.net][irc].
 
 A few useful links:
