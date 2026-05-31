@@ -1,0 +1,42 @@
+modLoader = "javafml"
+# NeoForge FML version — 4.x ships with NeoForge 21.x (MC 1.21.x)
+loaderVersion = "[4,)"
+
+license = "MIT"
+
+# Mod logo shown in the mod list screen
+[[logoFile]]
+    file = "assets/opencomputers/textures/gui/logo.png"
+
+[[mods]]
+    modId = "opencomputers"
+    version = "${mod_version}"
+    displayName = "OpenComputers"
+    description = '''
+        OpenComputers adds modular computers and robots that can be programmed
+        in Lua. Computers and robots persist across chunk unloads and can
+        interact with the world through a variety of hardware components.
+    '''
+
+    authors = "Sangar, Vexatos, payonel, magik6k, Lord Joda, Ahlforn, GitHub Contributors"
+    displayURL = "https://github.com/Ahlforn/OpenComputersReloaded"
+    credits = "Inspired by ComputerCraft and others."
+
+    # --- Update checker (optional) ---
+    # updateJSONURL = ""
+
+[[dependencies.opencomputers]]
+    modId = "neoforge"
+    type = "required"
+    # Require any NeoForge in the 1.21.4 series (21.4.x).
+    # Bump the floor when moving to the 26.1 milestone.
+    versionRange = "[${neoforge_version},)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.opencomputers]]
+    modId = "minecraft"
+    type = "required"
+    versionRange = "[${minecraft_version},)"
+    ordering = "NONE"
+    side = "BOTH"

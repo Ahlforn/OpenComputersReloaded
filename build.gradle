@@ -1,278 +1,269 @@
 plugins {
-    id 'scala'
+    id 'java'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.1.64'
-    id 'wtf.gofancy.fancygradle' version '1.1.+'
-    id "com.matthewprenger.cursegradle" version "1.4.0"
+    id 'net.neoforged.moddev' version "${moddevgradle_version}"
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
     id 'com.modrinth.minotaur' version '2.8.7'
 }
 
-fancyGradle {
-    patches {
-        resources
-        coremods
-        codeChickenLib
-        asm
-    }
-}
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
-file "build.properties" withReader {
-    def prop = new Properties()
-    prop.load(it)
-    ext.config = new ConfigSlurper().parse prop
-}
-
-version = "${mod_version}"
-if (version.endsWith("-snapshot")) {
-    version += "-" + (new Date().format('yyyyMMdd'))
-}
-
-group = config.mod.group
-archivesBaseName = config.mod.name
+// ---------------------------------------------------------------------------
+// Version assembly: <mod_version>[-<date>]+<git-sha>
+// ---------------------------------------------------------------------------
 
 def getGitRef() {
     try {
-        def stdout = new ByteArrayOutputStream()
-        exec {
-            commandLine 'git', 'rev-parse', '--short', 'HEAD'
-            standardOutput = stdout
-        }
-        return stdout.toString().trim()
-    } catch (Throwable e) {
-        return "unknown"
+        return ['git', 'rev-parse', '--short', 'HEAD'].execute(null, rootDir).text.trim()
+    } catch (Throwable ignored) {
+        return 'unknown'
     }
 }
 
-version += "+" + getGitRef()
+version = "${mod_version}"
+if (version.endsWith('-snapshot')) {
+    version += '-' + new Date().format('yyyyMMdd')
+}
+version += '+' + getGitRef()
 
-ext.simpleVersion = version
-version = "MC${config.minecraft.version}-${project.version}"
+ext.simpleVersion = version   // version without the MC prefix
+group = 'li.cil.oc'
 
-minecraft {
-    mappings channel: "${config.minecraft.mappings_channel}", version: "${config.minecraft.mappings_version}"
+// ---------------------------------------------------------------------------
+// Java toolchain
+//
+// The intermediate migration target (NeoForge 21.4.x / MC 1.21.4) requires
+// Java 21 at runtime, but we compile with whatever JDK is available (Java 25
+// on this machine) and set the release flag to 21 so the output class files
+// are compatible with Java 21+ runtimes.
+//
+// Once Phase 11 (NeoForge 26.1 / MC 26.1) lands, the release flag can be
+// relaxed to 25.
+//
+// If you have Java 21 installed and want to use it for stricter compatibility
+// checking, add this to gradle.properties:
+//   org.gradle.java.home=/path/to/jdk21
+// ---------------------------------------------------------------------------
+
+// NeoForge 1.21.4 internally needs Java 21 for artifact-processing tasks.
+// The Foojay resolver in settings.gradle provisions it automatically if not
+// present.  Our source is compiled with whatever JDK is available and the
+// bytecode is targeted at Java 21 for runtime compatibility.
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    // Explicit release flag keeps bytecode compatible with Java 21 even when
+    // compiled by a newer JDK.  Phase 11 bumps this to 25.
+    options.release = 21
+}
+
+// ---------------------------------------------------------------------------
+// NeoForge / ModDevGradle
+// ---------------------------------------------------------------------------
+
+neoForge {
+    version = "${neoforge_version}"
+
+    // Access transformer — populated phase by phase as Mojmap names are identified.
+    // Must be non-empty for NeoForge to pick it up; even a comment-only file is fine.
+    if (file('src/main/resources/META-INF/accesstransformer.cfg').exists()) {
+        accessTransformers.from('src/main/resources/META-INF/accesstransformer.cfg')
+    }
 
     runs {
         client {
-            workingDirectory project.file('run')
-            jvmArgs '-Dfml.coreMods.load=li.cil.oc.common.launch.TransformerLoader'
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                opencomputers {
-                    source sourceSets.main
-                }
-            }
+            client()
         }
         server {
-            jvmArgs '-Dfml.coreMods.load=li.cil.oc.common.launch.TransformerLoader'
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                opencomputers {
-                    source sourceSets.main
-                }
-            }
+            server()
         }
     }
 
-    accessTransformer = file('src/main/resources/oc_at.cfg')
-}
-
-task replaceSourceTokensScala(type: Sync) {
-    from sourceSets.main.scala
-    filter { line -> line
-            .replaceAll('@VERSION@', "${mod_version}")
-            .replaceAll("/*@MCVERSIONDEP@*/", ", acceptedMinecraftVersions = \"[${config.minecraft.version}]\"") }
-    into "$buildDir/srcReplaced/scala"
-}
-
-/* Do not pull this in on IDEA, as it changes the compiler's source path, making navigating to errors harder */
-if (!System.getProperty('idea.active')) {
-    compileScala {
-        source = replaceSourceTokensScala.outputs
+    mods {
+        opencomputers {
+            sourceSet(sourceSets.main)
+        }
     }
 }
 
-compileScala {
-    configure(scalaCompileOptions.forkOptions) {
-        memoryMaximumSize = '1g'
+// ---------------------------------------------------------------------------
+// Source sets
+//
+// Strategy during the Java port:
+//  - src/main/java  — only new NeoForge-compatible Java files.
+//    The legacy li.cil.oc.api.** and asm/**, integration/**, and the
+//    Forge-coupled util helpers are EXCLUDED until their respective phases.
+//  - src/main/scala — NOT compiled (Scala plugin removed).
+//    Files remain on disk as authoritative porting reference.
+//  - src/main/resources — all resources compiled as-is; legacy mcmod.info
+//    is harmlessly ignored by NeoForge.
+//
+// Re-enable each exclusion group once the corresponding phase lands:
+//   api/**         → Phase 10 (Public API revision)
+//   common/asm/**  → Phase 9  (SimpleComponent redesign)
+//   integration/** → post-core milestone
+//   util/OCObfuscationReflectionHelper.java → drop (SRG gone)
+//   util/SideTracker.java → Phase 1 (replace with Dist-aware util)
+// ---------------------------------------------------------------------------
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+            exclude 'li/cil/oc/api/**'
+            exclude 'li/cil/oc/common/asm/**'
+            exclude 'li/cil/oc/integration/**'
+            exclude 'li/cil/oc/util/OCObfuscationReflectionHelper.java'
+            exclude 'li/cil/oc/util/SideTracker.java'
+            exclude 'com/typesafe/config/impl/OpenComputersConfigCommentManipulationHook.java'
+        }
     }
 }
+
+// ---------------------------------------------------------------------------
+// Repositories
+// ---------------------------------------------------------------------------
 
 repositories {
     maven {
-        name "MightyPirates"
-        url "https://maven.cil.li/"
-        metadataSources {
-            mavenPom()
-            artifact()
-        }
-    }
-    maven {
-        name "SquidDev" /* CC: Tweaked */
-        url "https://squiddev.cc/maven/"
-    }
-    maven {
-        name "CurseForge"
-        url "https://minecraft.curseforge.com/api/maven/"
-        metadataSources {
-            mavenPom()
-            artifact()
-        }
-    }
-    maven {
-        url "https://cursemaven.com"
+        name 'MightyPirates'
+        url 'https://maven.cil.li/'
         content {
-            includeGroup "curse.maven"
+            // OC-LuaJ, OC-JNLua are published here.
+            // These artifact IDs may need updating for new builds targeting Java 21+.
+            includeGroupByRegex 'li\\.cil\\..*'
         }
     }
+    // asie.pl ivy mirror for legacy OC embedded deps (OC-LuaJ-Natives, etc.)
     ivy {
         name 'asie dependency mirror'
-        artifactPattern "https://asie.pl/javadeps/[module]-[revision](-[classifier]).[ext]"
+        url 'https://asie.pl/javadeps/'
+        patternLayout {
+            artifact '[module]-[revision](-[classifier]).[ext]'
+        }
         metadataSources {
             artifact()
         }
+        content {
+            includeModuleByRegex '.*', 'OC-.*'
+        }
     }
 }
 
-configurations {
-    embedded
-
-    compileOnly.extendsFrom provided
-    implementation.extendsFrom embedded
-}
+// ---------------------------------------------------------------------------
+// Dependencies
+// ---------------------------------------------------------------------------
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${config.minecraft.version}-${config.forge.version}"
+    // ------------------------------------------------------------------
+    // Typesafe Config — used by Settings.java for the OC configuration
+    // system.  Must be shaded/jar-in-jar because modern Minecraft does
+    // not ship it.
+    // ------------------------------------------------------------------
+    // TODO Phase 1: decide whether to shade via Shadow plugin or use
+    // NeoForge jarJar here.  For now it's compile-only until shading is
+    // set up, meaning it will be missing at runtime (config will not
+    // load yet).
+    compileOnly 'com.typesafe:config:1.4.3'
 
-    compileOnly fg.deobf("li.cil.tis3d:TIS-3D:${config.tis3d.version}") {
-        exclude module: "jei_1.12"
-    }
-    compileOnly fg.deobf("com.mod-buildcraft:buildcraft-api:${config.buildcraft.version}")
-    compileOnly fg.deobf("MCMultiPart2:MCMultiPart-exp:${config.mcmp.version}")
-    provided fg.deobf("net.sengir.forestry:forestry_1.12.2:${config.forestry.version}") {
-        exclude module: "jei_1.12"
-    }
-    compileOnly fg.deobf("net.industrial-craft:industrialcraft-2:${config.ic2.version}")
-    compileOnly fg.deobf("mcp.mobius.waila:Hwyla:${config.hwyla.version}:api")
-    /* compileOnly fg.deobf("dan200.computercraft:ComputerCraft:${config.cc.version}") */
-    compileOnly fg.deobf("org.squiddev:cc-tweaked-1.12.2:${config.cctweaked.version}")
-    compileOnly fg.deobf("charset:Charset:${config.charset.version}:api")
-    compileOnly fg.deobf("curse.maven:cofh-core-69162:2920433") /* CoFHCore */
-    compileOnly fg.deobf("curse.maven:ender-io-64578:3328811") /* Ender IO */
-    compileOnly fg.deobf("curse.maven:railcraft-51195:2687757") /* Railcraft */
+    // ------------------------------------------------------------------
+    // OC-LuaJ — pure-JVM Lua runtime (the only Lua backend for the
+    // minimal-core milestone; JNLua/native backend deferred).
+    //
+    // TODO Phase 1: verify OC-LuaJ-20220907.1 runs on Java 21 (it was
+    // compiled for Java 8, so class-file compatibility should hold).
+    // If the ivy URL is unreachable, download the jar and place it at
+    // libs/OC-LuaJ-20220907.1.jar, then replace with:
+    //   jarJar(files('libs/OC-LuaJ-20220907.1.jar'))
+    // ------------------------------------------------------------------
+    // jarJar(name: 'OC-LuaJ', version: '20220907.1', ext: 'jar') { ... }
 
-    provided fg.deobf("appeng:appliedenergistics2:${config.ae2.version}") {
-        transitive = false
-    }
-    provided fg.deobf("extracells:ExtraCells:${config.extracells.version}:api")
-    
-    provided fg.deobf("mekanism:Mekanism:${config.mekanism.version}:api") {
-        transitive = false
-    }
-
-    provided fg.deobf("codechicken:ForgeMultipart:${config.minecraft.version}-${config.forgemultipart.version}:universal") {
-        exclude module: "jei_1.12"
-        exclude module: "CodeChickenLib"
-    }
-
-    provided fg.deobf("codechicken:ChickenASM:${config.casm.version}")
-
-    provided fg.deobf("mezz.jei:jei_${config.minecraft.version}:${config.jei.version}")
-    provided fg.deobf("codechicken:CodeChickenLib:${config.minecraft.version}-${config.ccl.version}:universal")
-    provided fg.deobf("codechicken:WR-CBE:${config.minecraft.version}-${config.wrcbe.version}:universal")
-
-    provided fg.deobf("mrtjp:ProjectRed:${config.projred.version}:Base") {
-        exclude module: "NotEnoughItems"
-        exclude module: "CodeChickenLib"
-        exclude module: "jei_1.12"
-        exclude module: "ForgeMultipart"
-    }
-
-    provided fg.deobf("mrtjp:ProjectRed:${config.projred.version}:integration") {
-        exclude module: "NotEnoughItems"
-        exclude module: "CodeChickenLib"
-        exclude module: "jei_1.12"
-        exclude module: "ForgeMultipart"
-    }
-
-    provided fg.deobf("mrtjp:MrTJPCore:${config.mrtjpcore.version}:universal") {
-        exclude module: "NotEnoughItems"
-        exclude module: "CodeChickenLib"
-        exclude module: "jei_1.12"
-        exclude module: "ForgeMultipart"
-    }
-
-    embedded name: 'OC-LuaJ', version: '20220907.1', ext: 'jar'
-    embedded name: 'OC-JNLua', version: '20230530.0', ext: 'jar'
-    embedded name: 'OC-JNLua-Natives', version: '20220928.1', ext: 'jar'
-
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.mockito:mockito-all:1.10.19")
-    testImplementation("org.scalactic:scalactic_2.11:2.2.6")
-    testImplementation("org.scalatest:scalatest_2.11:2.2.6")
-
-    provided fg.deobf("codechicken:EnderStorage:${config.minecraft.version}-${config.enderstorage.version}:universal")
+    // ------------------------------------------------------------------
+    // Tests
+    // ------------------------------------------------------------------
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testImplementation 'org.mockito:mockito-core:5.7.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
+
+// ---------------------------------------------------------------------------
+// Process resources — expand variables in neoforge.mods.toml and application.conf
+// ---------------------------------------------------------------------------
 
 processResources {
-    inputs.property "version", "${mod_version}"
-    inputs.property "mcversion", config.minecraft.version
-    inputs.property "fversion", config.forge.version
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    filesMatching(['mcmod.info']) {
-        expand 'version':"${mod_version}", 'mcversion':config.minecraft.version, 'fversion':config.forge.version
-    }
-    filesMatching(['application.conf']) {
-        filter { line ->
-            line.replaceAll("@VERSION@", "${mod_version}")
-        }
+    def modVer  = "${mod_version}"
+    def mcVer   = "${minecraft_version}"
+    def nfVer   = "${neoforge_version}"
+    inputs.property 'mod_version',       modVer
+    inputs.property 'minecraft_version', mcVer
+    inputs.property 'neoforge_version',  nfVer
+
+    // neoforge.mods.toml uses ${mod_version} / ${minecraft_version} / ${neoforge_version}
+    // Groovy expand() is safe here because the toml contains no other ${} references.
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand([
+            mod_version       : modVer,
+            minecraft_version : mcVer,
+            neoforge_version  : nfVer,
+        ])
     }
 
-    // Move access transformer to META-INF
-    rename '(.+_at.cfg)', 'META-INF/$1'
+    // application.conf uses the legacy @VERSION@ token AND contains Typesafe Config
+    // ${?...} substitution syntax throughout — do NOT use expand() on it (it would
+    // corrupt every config substitution reference).  Simple line filter only.
+    filesMatching('application.conf') {
+        filter { line -> line.replace('@VERSION@', modVer) }
+    }
 }
+
+// ---------------------------------------------------------------------------
+// Jar manifest
+// ---------------------------------------------------------------------------
 
 jar {
-    configurations.embedded.each { dep ->
-        from(project.zipTree(dep)) {
-            exclude 'META-INF', 'META-INF/**'
-        }
-    }
     manifest {
-        attributes FMLCorePlugin: "li.cil.oc.common.launch.TransformerLoader"
-        attributes FMLCorePluginContainsFMLMod: "true"
-        attributes FMLAT: "oc_at.cfg"
+        attributes(
+            'Specification-Title'   : 'opencomputers',
+            'Specification-Vendor'  : 'Ahlforn',
+            'Specification-Version' : '1',
+            'Implementation-Title'  : project.name,
+            'Implementation-Version': "${mod_version}",
+            'Implementation-Vendor' : 'Ahlforn',
+        )
     }
 }
 
-javadoc {
-    include 'li/cil/oc/api/**'
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+test {
+    useJUnitPlatform()
 }
 
-task apiJar(type: Jar) {
-    from sourceSets.main.allSource
-    from sourceSets.main.output
-    classifier = 'api'
-    include 'li/cil/oc/api/**'
-}
+// ---------------------------------------------------------------------------
+// API artifact (li/cil/oc/api/** only)
+// Published separately so addon authors can depend on only the API surface.
+// Re-enable once Phase 10 (Public API revision) lands.
+// ---------------------------------------------------------------------------
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    from javadoc.destinationDir
-    classifier 'javadoc'
-}
+// task apiJar(type: Jar) {
+//     from sourceSets.main.allSource
+//     from sourceSets.main.output
+//     archiveClassifier = 'api'
+//     include 'li/cil/oc/api/**'
+//     dependsOn compileJava
+// }
+// artifacts { archives apiJar }
 
-artifacts {
-    archives apiJar
-    archives javadocJar
-}
+// ---------------------------------------------------------------------------
+// Publishing
+// ---------------------------------------------------------------------------
 
 publishing {
     publications {
@@ -280,44 +271,23 @@ publishing {
             groupId = project.group
             artifactId = project.name
             version = mod_version
-            artifact jar
-            artifact apiJar
-            artifact javadocJar
+            from components.java
         }
     }
     repositories {
         maven {
-            name = "GitHubPackages"
-            url = System.getenv("GITHUB_MAVEN_URL") ?: ""
+            name = 'GitHubPackages'
+            url = System.getenv('GITHUB_MAVEN_URL') ?: 'file://${project.buildDir}/local-repo'
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+                username = System.getenv('GITHUB_ACTOR')
+                password = System.getenv('GITHUB_TOKEN')
             }
         }
     }
 }
 
-curseforge {
-    apiKey = System.getenv('CURSEFORGE_API_KEY') ?: ""
-    project {
-        id = config.curse.project.id
-        releaseType = System.getenv('CURSEFORGE_RELEASE_TYPE') ?: "alpha"
-        changelogType = "markdown"
-        changelog = System.getenv("CHANGELOG") ?: "Changelog not available."
-        addGameVersion config.minecraft.version
-        addGameVersion "Java 8"
-        addGameVersion "Forge"
-    }
-}
-
-modrinth {
-    token = System.getenv("MODRINTH_API_KEY") ?: ""
-    projectId = config.modrinth.project.id
-    changelog = System.getenv("CHANGELOG") ?: "Changelog not available."
-    versionNumber = mod_version
-    versionName = "${rootProject.name}-${version}"
-    versionType = System.getenv('MODRINTH_RELEASE_TYPE') ?: "alpha"
-    uploadFile = jar
-    gameVersions = [config.minecraft.version]
-    loaders = ["forge"]
-}
+// ---------------------------------------------------------------------------
+// CurseForge / Modrinth publishing — re-enable once stable builds exist
+// ---------------------------------------------------------------------------
+// curseforge { ... }
+// modrinth { ... }
