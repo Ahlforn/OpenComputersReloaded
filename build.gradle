@@ -62,6 +62,12 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 21
 }
 
+// The legacy api/ Javadoc uses <tt> which is not valid HTML5.
+// Suppress doclint until Phase 10 (full API revision).
+tasks.withType(Javadoc).configureEach {
+    options.addStringOption('Xdoclint:none', '-quiet')
+}
+
 // ---------------------------------------------------------------------------
 // NeoForge / ModDevGradle
 // ---------------------------------------------------------------------------
@@ -104,7 +110,11 @@ neoForge {
 //    is harmlessly ignored by NeoForge.
 //
 // Re-enable each exclusion group once the corresponding phase lands:
-//   api/**         → Phase 10 (Public API revision)
+//   api/driver,event,internal,component,manual,nanomachines → Phase 10 (Public API revision)
+//   api/prefab/Tile*,Driver*,ItemStack*,Texture* → Phase 10
+//   api/detail/DriverAPI,ItemAPI,ManualAPI,NanomachinesAPI → Phase 10
+//   api/network/SimpleComponent → Phase 9  (SimpleComponent redesign)
+//   api/CreativeTab, Driver, IMC, Items, Manual, Nanomachines → Phase 10
 //   common/asm/**  → Phase 9  (SimpleComponent redesign)
 //   integration/** → post-core milestone
 //   util/OCObfuscationReflectionHelper.java → drop (SRG gone)
@@ -115,7 +125,44 @@ sourceSets {
     main {
         java {
             srcDirs = ['src/main/java']
-            exclude 'li/cil/oc/api/**'
+
+            // --- api/ sub-packages not yet ported (Phase 10+) ---------------
+            exclude 'li/cil/oc/api/component/**'
+            exclude 'li/cil/oc/api/driver/**'
+            exclude 'li/cil/oc/api/event/**'
+            exclude 'li/cil/oc/api/internal/**'
+            exclude 'li/cil/oc/api/manual/**'
+            exclude 'li/cil/oc/api/nanomachines/**'
+            // api/detail files with unfixed types (Phase 10)
+            exclude 'li/cil/oc/api/detail/DriverAPI.java'
+            exclude 'li/cil/oc/api/detail/ItemAPI.java'
+            exclude 'li/cil/oc/api/detail/ItemInfo.java'
+            exclude 'li/cil/oc/api/detail/ManualAPI.java'
+            exclude 'li/cil/oc/api/detail/NanomachinesAPI.java'
+            // api/prefab files with unfixed types (Phase 10)
+            exclude 'li/cil/oc/api/prefab/AbstractBehavior.java'
+            exclude 'li/cil/oc/api/prefab/AbstractProvider.java'
+            exclude 'li/cil/oc/api/prefab/DriverItem.java'
+            exclude 'li/cil/oc/api/prefab/DriverSidedBlock.java'
+            exclude 'li/cil/oc/api/prefab/DriverSidedTileEntity.java'
+            exclude 'li/cil/oc/api/prefab/ItemStackArrayValue.java'
+            exclude 'li/cil/oc/api/prefab/ItemStackTabIconRenderer.java'
+            exclude 'li/cil/oc/api/prefab/TextureTabIconRenderer.java'
+            exclude 'li/cil/oc/api/prefab/TileEntityEnvironment.java'
+            exclude 'li/cil/oc/api/prefab/TileEntitySidedEnvironment.java'
+            exclude 'li/cil/oc/api/prefab/AbstractInteractiveImageRenderer.java'
+            exclude 'li/cil/oc/api/prefab/ResourceContentProvider.java'
+            // api/network: old ASM-injection interface (Phase 9)
+            exclude 'li/cil/oc/api/network/SimpleComponent.java'
+            // top-level api files not needed for core or unfixed (Phase 10)
+            exclude 'li/cil/oc/api/CreativeTab.java'
+            exclude 'li/cil/oc/api/Driver.java'
+            exclude 'li/cil/oc/api/IMC.java'
+            exclude 'li/cil/oc/api/Items.java'
+            exclude 'li/cil/oc/api/Manual.java'
+            exclude 'li/cil/oc/api/Nanomachines.java'
+            // --- end api/ exclusions ----------------------------------------
+
             exclude 'li/cil/oc/common/asm/**'
             exclude 'li/cil/oc/integration/**'
             exclude 'li/cil/oc/util/OCObfuscationReflectionHelper.java'

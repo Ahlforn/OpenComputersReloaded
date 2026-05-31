@@ -1,8 +1,6 @@
 package li.cil.oc.api.network;
 
 import li.cil.oc.api.Persistable;
-import li.cil.oc.api.driver.DriverBlock;
-import li.cil.oc.api.driver.DriverItem;
 
 /**
  * A single node in a {@link Network}.

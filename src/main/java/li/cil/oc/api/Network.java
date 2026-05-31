@@ -6,10 +6,10 @@ import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Packet;
 import li.cil.oc.api.network.Visibility;
 import li.cil.oc.api.network.WirelessEndpoint;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * This class provides factories for networks and nodes.
@@ -44,9 +44,9 @@ public final class Network {
      *
      * @param tileEntity the tile entity to initialize.
      */
-    public static void joinOrCreateNetwork(final TileEntity tileEntity) {
+    public static void joinOrCreateNetwork(final BlockEntity blockEntity) {
         if (API.network != null)
-            API.network.joinOrCreateNetwork(tileEntity);
+            API.network.joinOrCreateNetwork(blockEntity);
     }
 
     /**
@@ -56,7 +56,7 @@ public final class Network {
      * @param world the world containing the location to connect.
      * @param pos   the position at which to update the network.
      */
-    public static void joinOrCreateNetwork(final IBlockAccess world, final BlockPos pos) {
+    public static void joinOrCreateNetwork(final LevelReader world, final BlockPos pos) {
         if (API.network != null)
             API.network.joinOrCreateNetwork(world, pos);
     }
@@ -233,7 +233,7 @@ public final class Network {
      * @param nbt the tag to load the packet from.
      * @return the loaded packet.
      */
-    public static Packet newPacket(final NBTTagCompound nbt) {
+    public static Packet newPacket(final CompoundTag nbt) {
         if (API.network != null)
             return API.network.newPacket(nbt);
         return null;
