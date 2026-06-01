@@ -2,6 +2,7 @@ package li.cil.oc.common.tileentity;
 
 import li.cil.oc.api.API;
 import li.cil.oc.api.machine.MachineHost;
+import li.cil.oc.server.PacketSender;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.common.init.Registries;
 import net.minecraft.core.BlockPos;
@@ -148,6 +149,7 @@ public class CaseBlockEntity extends OcBlockEntity implements MachineHost {
                 hasErrored = errored;
                 setChanged();
                 level.sendBlockUpdated(pos, state, state, 3);
+                PacketSender.sendComputerState(this);
             }
         }
     }

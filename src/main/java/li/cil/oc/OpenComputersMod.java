@@ -1,8 +1,12 @@
 package li.cil.oc;
 
 import li.cil.oc.api.API;
+import li.cil.oc.common.OcPacketPayload;
+import li.cil.oc.common.PacketHandler;
 import li.cil.oc.common.init.Registries;
 import li.cil.oc.server.machine.MachineAPIImpl;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -71,6 +75,7 @@ public class OpenComputersMod {
         this.modEventBus = modEventBus;
 
         modEventBus.addListener(this::onCommonSetup);
+        modEventBus.addListener(this::onRegisterPayloadHandlers);
 
         // Phase 2: DeferredRegisters for blocks, items, block-entity types, creative tab.
         Registries.register(modEventBus);
@@ -94,6 +99,16 @@ public class OpenComputersMod {
      * handles work that must happen <em>after</em> registration completes,
      * e.g. cross-mod integration queries (when those phases land).</p>
      */
+    private void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar("1");
+        PacketHandler handler = new PacketHandler();
+        registrar.playBidirectional(
+            OcPacketPayload.TYPE,
+            OcPacketPayload.STREAM_CODEC,
+            handler::handle
+        );
+    }
+
     private void onCommonSetup(FMLCommonSetupEvent event) {
         LOGGER.info("OpenComputers common setup.");
 
