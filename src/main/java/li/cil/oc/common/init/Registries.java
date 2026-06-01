@@ -4,7 +4,11 @@ import li.cil.oc.Constants;
 import li.cil.oc.OpenComputersMod;
 import li.cil.oc.common.Tier;
 import li.cil.oc.common.block.*;
+import li.cil.oc.common.item.data.DriveData;
+import li.cil.oc.common.item.data.EepromData;
+import li.cil.oc.common.item.data.OcNodeData;
 import li.cil.oc.common.tileentity.*;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -46,6 +50,11 @@ public final class Registries {
 
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
         DeferredRegister.create(BuiltInRegistries.CREATIVE_MODE_TAB, OpenComputersMod.MOD_ID);
+
+    @SuppressWarnings("unchecked")
+    public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS =
+        DeferredRegister.create(net.minecraft.core.registries.Registries.DATA_COMPONENT_TYPE,
+            OpenComputersMod.MOD_ID);
 
     // -----------------------------------------------------------------------
     // Blocks — one entry per registered block (no metadata subtypes)
@@ -323,6 +332,34 @@ public final class Registries {
                 DISK_DRIVE.get()));
 
     // -----------------------------------------------------------------------
+    // Data component types (Phase 4)
+    // -----------------------------------------------------------------------
+
+    /** OC network-node data: address, energy buffer, visibility. Present on all component items. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<OcNodeData>> NODE_DATA =
+        DATA_COMPONENTS.register("node_data",
+            () -> DataComponentType.<OcNodeData>builder()
+                .persistent(OcNodeData.CODEC)
+                .networkSynchronized(OcNodeData.STREAM_CODEC)
+                .build());
+
+    /** Drive metadata: managed/unmanaged flag, write-lock owner. Present on floppy and HDD items. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<DriveData>> DRIVE_DATA =
+        DATA_COMPONENTS.register("drive_data",
+            () -> DataComponentType.<DriveData>builder()
+                .persistent(DriveData.CODEC)
+                .networkSynchronized(DriveData.STREAM_CODEC)
+                .build());
+
+    /** EEPROM content: program bytes, volatile scratch, label, readonly flag. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<EepromData>> EEPROM_DATA =
+        DATA_COMPONENTS.register("eeprom_data",
+            () -> DataComponentType.<EepromData>builder()
+                .persistent(EepromData.CODEC)
+                .networkSynchronized(EepromData.STREAM_CODEC)
+                .build());
+
+    // -----------------------------------------------------------------------
     // Creative tab
     // -----------------------------------------------------------------------
 
@@ -346,6 +383,7 @@ public final class Registries {
         ITEMS.register(modEventBus);
         BLOCK_ENTITY_TYPES.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
+        DATA_COMPONENTS.register(modEventBus);
     }
 
     // -----------------------------------------------------------------------
