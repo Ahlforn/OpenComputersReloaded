@@ -1,5 +1,6 @@
 package li.cil.oc;
 
+import li.cil.oc.common.init.Registries;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -35,14 +36,17 @@ import org.apache.logging.log4j.Logger;
  *   <li>Phase 11 — Bump NeoForge 1.21.x → 26.1 (Java 25)</li>
  * </ul>
  */
-@Mod(OpenComputersMod.ID)
+@Mod(OpenComputersMod.MOD_ID)
 public class OpenComputersMod {
 
     // -----------------------------------------------------------------------
     // Constants
     // -----------------------------------------------------------------------
 
-    public static final String ID = "opencomputers";
+    public static final String MOD_ID = "opencomputers";
+    /** @deprecated use {@link #MOD_ID} */
+    @Deprecated
+    public static final String ID   = MOD_ID;
     public static final String NAME = "OpenComputers";
 
     // -----------------------------------------------------------------------
@@ -66,16 +70,15 @@ public class OpenComputersMod {
 
         modEventBus.addListener(this::onCommonSetup);
 
-        // TODO Phase 2:  Registries.BLOCKS.register(modEventBus);
-        //                Registries.ITEMS.register(modEventBus);
-        //                Registries.BLOCK_ENTITY_TYPES.register(modEventBus);
-        //                Registries.CREATIVE_MODE_TABS.register(modEventBus);
+        // Phase 2: DeferredRegisters for blocks, items, block-entity types, creative tab.
+        Registries.register(modEventBus);
+
         // TODO Phase 5:  register CustomPacketPayload types via
         //                RegisterPayloadHandlersEvent on the mod bus.
         // TODO Phase 6:  Registries.MENU_TYPES.register(modEventBus);
         // TODO Phase 8:  RegisterCapabilitiesEvent subscriber on the mod bus.
 
-        LOGGER.info("OpenComputers loading — NeoForge port Phase 0 (scaffolding only).");
+        LOGGER.info("OpenComputers loading — NeoForge port Phase 2 (registration).");
     }
 
     // -----------------------------------------------------------------------
@@ -92,7 +95,6 @@ public class OpenComputersMod {
     private void onCommonSetup(FMLCommonSetupEvent event) {
         LOGGER.info("OpenComputers common setup.");
 
-        // TODO Phase 1:  initialise Settings, ThreadPool, machine registry.
         // TODO Phase 8:  register external energy bridges (Forge Energy).
     }
 }
