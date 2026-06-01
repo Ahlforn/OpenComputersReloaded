@@ -5,6 +5,8 @@ import li.cil.oc.common.OcPacketPayload;
 import li.cil.oc.common.PacketHandler;
 import li.cil.oc.common.init.Registries;
 import li.cil.oc.server.machine.MachineAPIImpl;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.bus.api.IEventBus;
@@ -76,6 +78,9 @@ public class OpenComputersMod {
 
         modEventBus.addListener(this::onCommonSetup);
         modEventBus.addListener(this::onRegisterPayloadHandlers);
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            modEventBus.addListener(ClientSetup::onRegisterMenuScreens);
+        }
 
         // Phase 2: DeferredRegisters for blocks, items, block-entity types, creative tab.
         Registries.register(modEventBus);

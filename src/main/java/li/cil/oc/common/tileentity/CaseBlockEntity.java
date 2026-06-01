@@ -2,18 +2,25 @@ package li.cil.oc.common.tileentity;
 
 import li.cil.oc.api.API;
 import li.cil.oc.api.machine.MachineHost;
-import li.cil.oc.server.PacketSender;
 import li.cil.oc.api.network.Node;
+import li.cil.oc.common.container.CaseMenu;
 import li.cil.oc.common.init.Registries;
+import li.cil.oc.server.PacketSender;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 
@@ -28,7 +35,7 @@ import java.util.Collections;
  * node wiring are all Phase 3 follow-on work; stubs are present here so the
  * machine can at least boot.</p>
  */
-public class CaseBlockEntity extends OcBlockEntity implements MachineHost {
+public class CaseBlockEntity extends OcBlockEntity implements MachineHost, MenuProvider {
 
     private static final String MACHINE_TAG = "oc:computer";
     private static final String TIER_TAG     = "oc:tier";
@@ -195,6 +202,21 @@ public class CaseBlockEntity extends OcBlockEntity implements MachineHost {
     // -----------------------------------------------------------------------
 
     public int getTier() { return tier; }
+
+    // -----------------------------------------------------------------------
+    // MenuProvider — allows players to open the case GUI
+    // -----------------------------------------------------------------------
+
+    @Override
+    public Component getDisplayName() {
+        return Component.translatable("gui.opencomputers.case");
+    }
+
+    @Override
+    public @Nullable AbstractContainerMenu createMenu(int windowId, Inventory playerInventory,
+                                                      Player player) {
+        return new CaseMenu(windowId, playerInventory, this);
+    }
 
     // -----------------------------------------------------------------------
     // Facing direction (Phase 3b): stub for Direction API compatibility

@@ -4,18 +4,21 @@ import li.cil.oc.Constants;
 import li.cil.oc.OpenComputersMod;
 import li.cil.oc.common.Tier;
 import li.cil.oc.common.block.*;
+import li.cil.oc.common.container.CaseMenu;
 import li.cil.oc.common.item.data.DriveData;
 import li.cil.oc.common.item.data.EepromData;
 import li.cil.oc.common.item.data.OcNodeData;
 import li.cil.oc.common.tileentity.*;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -50,6 +53,10 @@ public final class Registries {
 
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
         DeferredRegister.create(BuiltInRegistries.CREATIVE_MODE_TAB, OpenComputersMod.MOD_ID);
+
+    @SuppressWarnings("unchecked")
+    public static final DeferredRegister<MenuType<?>> MENU_TYPES =
+        DeferredRegister.create(BuiltInRegistries.MENU, OpenComputersMod.MOD_ID);
 
     @SuppressWarnings("unchecked")
     public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS =
@@ -332,6 +339,15 @@ public final class Registries {
                 DISK_DRIVE.get()));
 
     // -----------------------------------------------------------------------
+    // Menu types (Phase 6)
+    // -----------------------------------------------------------------------
+
+    /** One MenuType covers all Case tiers; the tier is embedded in the BE. */
+    public static final DeferredHolder<MenuType<?>, MenuType<CaseMenu>> CASE_MENU =
+        MENU_TYPES.register("case",
+            () -> IMenuTypeExtension.create(CaseMenu::new));
+
+    // -----------------------------------------------------------------------
     // Data component types (Phase 4)
     // -----------------------------------------------------------------------
 
@@ -383,6 +399,7 @@ public final class Registries {
         ITEMS.register(modEventBus);
         BLOCK_ENTITY_TYPES.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
+        MENU_TYPES.register(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
     }
 
