@@ -1,6 +1,8 @@
 package li.cil.oc;
 
+import li.cil.oc.api.API;
 import li.cil.oc.common.init.Registries;
+import li.cil.oc.server.machine.MachineAPIImpl;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -94,6 +96,9 @@ public class OpenComputersMod {
      */
     private void onCommonSetup(FMLCommonSetupEvent event) {
         LOGGER.info("OpenComputers common setup.");
+
+        // Phase 3: wire MachineAPI so Case block entities can create machines.
+        API.machine = new MachineAPIImpl();
 
         // TODO Phase 8:  register external energy bridges (Forge Energy).
     }

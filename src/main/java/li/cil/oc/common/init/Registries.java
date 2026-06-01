@@ -4,11 +4,13 @@ import li.cil.oc.Constants;
 import li.cil.oc.OpenComputersMod;
 import li.cil.oc.common.Tier;
 import li.cil.oc.common.block.*;
+import li.cil.oc.common.tileentity.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -38,6 +40,7 @@ public final class Registries {
     public static final DeferredRegister.Items ITEMS =
         DeferredRegister.createItems(OpenComputersMod.MOD_ID);
 
+    @SuppressWarnings("unchecked")
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES =
         DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, OpenComputersMod.MOD_ID);
 
@@ -286,6 +289,38 @@ public final class Registries {
     public static final DeferredItem<Item> BUTTON_GROUP = simpleItem(Constants.ItemName.ButtonGroup);
     public static final DeferredItem<Item> NUM_PAD      = simpleItem(Constants.ItemName.NumPad);
     public static final DeferredItem<Item> PRESENT      = simpleItem(Constants.ItemName.Present);
+
+    // -----------------------------------------------------------------------
+    // Block entity types (Phase 3 — add more as block entities are ported)
+    //
+    // One type covers all tier variants for Case and Screen so the legacy
+    // single-class design is preserved.  Explicit lambdas avoid constructor
+    // ambiguity that arises with multiple constructors and method references.
+    // -----------------------------------------------------------------------
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CaseBlockEntity>> CASE_BE =
+        BLOCK_ENTITY_TYPES.register("case",
+            () -> new BlockEntityType<>(
+                (pos, state) -> new CaseBlockEntity(pos, state),
+                CASE_TIER1.get(), CASE_TIER2.get(), CASE_TIER3.get(), CASE_CREATIVE.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ScreenBlockEntity>> SCREEN_BE =
+        BLOCK_ENTITY_TYPES.register("screen",
+            () -> new BlockEntityType<>(
+                (pos, state) -> new ScreenBlockEntity(pos, state),
+                SCREEN_TIER1.get(), SCREEN_TIER2.get(), SCREEN_TIER3.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<KeyboardBlockEntity>> KEYBOARD_BE =
+        BLOCK_ENTITY_TYPES.register(Constants.BlockName.Keyboard,
+            () -> new BlockEntityType<>(
+                (pos, state) -> new KeyboardBlockEntity(pos, state),
+                KEYBOARD.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DiskDriveBlockEntity>> DISK_DRIVE_BE =
+        BLOCK_ENTITY_TYPES.register(Constants.BlockName.DiskDrive,
+            () -> new BlockEntityType<>(
+                (pos, state) -> new DiskDriveBlockEntity(pos, state),
+                DISK_DRIVE.get()));
 
     // -----------------------------------------------------------------------
     // Creative tab
