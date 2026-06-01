@@ -186,7 +186,7 @@ public class Settings {
     public final double[] harvestRatio;
 
     // power
-    public final double[] powerRatioFromBatteryBlock; // IC2, TE, etc. → unused in Phase 1
+    public final double[] powerRatioFromBatteryBlock = new double[0]; // IC2, TE, etc. — unused in Phase 1 → unused in Phase 1
     public final double[] costPerOperation;           // named by operation
 
     // filesystem
@@ -306,6 +306,39 @@ public class Settings {
     public final boolean enableCommandBlockDriver;
     public final boolean allowItemStackNBTTags;
     public final double costProgrammingTable;
+
+    // power
+    public final boolean ignorePower;
+    public final int tickFrequency;
+    public final double bufferComputer;
+    public final double computerCost;
+    public final double robotCost;
+    public final double sleepCostFactor;
+    public final double hddReadCost;
+    public final double hddWriteCost;
+    public final double hddSeekCost;
+    public final double screenCostFactor;
+    public final double gpuFillCost;
+    public final double gpuClearCost;
+    public final double gpuCopyCost;
+    public final double gpuSetCost;
+    public final double gpuBitbltCost;
+    public final double robotTurnCost;
+    public final double robotMoveCost;
+    public final double robotExhaustionCost;
+    public final double assemblerCost;
+    public final double chargeCostFactor;
+    public final double printerCost;
+    public final double nanomachineCost;
+    public final double terminalServerCost;
+    public final double dataCardTrivial;
+    public final double dataCardSimple;
+    public final double dataCardComplex;
+    public final double dataCardAsymmetric;
+    public final double transposerCost;
+    public final double generatorEfficiency;
+    public final double solarGeneratorEfficiency;
+    public final double abstractBusPacketCost;
 
     // debug
     public final boolean logLuaCallbackErrors;
@@ -584,6 +617,39 @@ public class Settings {
         allowItemStackNBTTags = config.getBoolean("integration.vanilla.allowItemStackNBTTags");
         costProgrammingTable = Math.max(0, config.getDouble("integration.buildcraft.programmingTableCost"));
 
+        // power
+        ignorePower = config.getBoolean("power.ignorePower");
+        tickFrequency = Math.max(1, config.getInt("power.tickFrequency"));
+        bufferComputer = Math.max(0, config.getDouble("power.buffer.computer"));
+        computerCost = Math.max(0, config.getDouble("power.cost.computer"));
+        robotCost = Math.max(0, config.getDouble("power.cost.robot"));
+        sleepCostFactor = Math.max(0, config.getDouble("power.cost.sleepFactor"));
+        hddReadCost = Math.max(0, config.getDouble("power.cost.hddRead"));
+        hddWriteCost = Math.max(0, config.getDouble("power.cost.hddWrite"));
+        hddSeekCost = Math.max(0, config.getDouble("power.cost.hddSeek"));
+        screenCostFactor = Math.max(0, config.getDouble("power.cost.screenFactor"));
+        gpuFillCost = Math.max(0, config.getDouble("power.cost.gpuFill"));
+        gpuClearCost = Math.max(0, config.getDouble("power.cost.gpuClear"));
+        gpuCopyCost = Math.max(0, config.getDouble("power.cost.gpuCopy"));
+        gpuSetCost = Math.max(0, config.getDouble("power.cost.gpuSet"));
+        gpuBitbltCost = Math.max(0, config.getDouble("power.cost.gpuBitblt"));
+        robotTurnCost = Math.max(0, config.getDouble("power.cost.robotTurn"));
+        robotMoveCost = Math.max(0, config.getDouble("power.cost.robotMove"));
+        robotExhaustionCost = Math.max(0, config.getDouble("power.cost.robotExhaustion"));
+        assemblerCost = Math.max(0, config.getDouble("power.cost.assemblerPerItem"));
+        chargeCostFactor = Math.max(0, config.getDouble("power.cost.chargeFactor"));
+        printerCost = Math.max(0, config.getDouble("power.cost.printer"));
+        nanomachineCost = Math.max(0, config.getDouble("power.cost.nanomachines"));
+        terminalServerCost = Math.max(0, config.getDouble("power.cost.terminalServer"));
+        dataCardTrivial = Math.max(0, config.getDouble("power.cost.dataCardTrivial"));
+        dataCardSimple = Math.max(0, config.getDouble("power.cost.dataCardSimple"));
+        dataCardComplex = Math.max(0, config.getDouble("power.cost.dataCardComplex"));
+        dataCardAsymmetric = Math.max(0, config.getDouble("power.cost.dataCardAsymmetric"));
+        transposerCost = Math.max(0, config.getDouble("power.cost.transposer"));
+        generatorEfficiency = Math.max(0, config.getDouble("power.efficiency.generator"));
+        solarGeneratorEfficiency = Math.max(0, config.getDouble("power.efficiency.solarGenerator"));
+        abstractBusPacketCost = Math.max(0, config.getDouble("power.cost.abstractBusPacket"));
+
         // debug
         logLuaCallbackErrors = config.getBoolean("debug.logCallbackErrors");
         forceLuaJ = config.getBoolean("debug.forceLuaJ");
@@ -617,8 +683,6 @@ public class Settings {
         maxNetworkClientEffectPacketDistance = Math.max(0, config.getDouble("misc.maxNetworkClientEffectPacketDistance"));
         maxNetworkClientSoundPacketDistance = Math.max(0, config.getDouble("misc.maxNetworkClientSoundPacketDistance"));
 
-        // power – placeholder for power costs; individual values accessed in Phase 8
-        powerRatioFromBatteryBlock = new double[0];
     }
 
     public boolean internetFilteringRulesInvalid() {

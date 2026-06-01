@@ -153,7 +153,7 @@ public interface Context {
      *
      * @param callCost the cost of the direct call being performed.
      */
-    void consumeCallBudget(double callCost);
+    void consumeCallBudget(double callCost) throws LimitReachedException;
 
     /**
      * Push a signal into the computer.

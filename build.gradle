@@ -209,26 +209,18 @@ repositories {
 dependencies {
     // ------------------------------------------------------------------
     // Typesafe Config — used by Settings.java for the OC configuration
-    // system.  Must be shaded/jar-in-jar because modern Minecraft does
-    // not ship it.
+    // system.  Bundled via NeoForge jarJar so it is available at runtime.
     // ------------------------------------------------------------------
-    // TODO Phase 1: decide whether to shade via Shadow plugin or use
-    // NeoForge jarJar here.  For now it's compile-only until shading is
-    // set up, meaning it will be missing at runtime (config will not
-    // load yet).
-    compileOnly 'com.typesafe:config:1.4.3'
+    jarJar('com.typesafe:config:[1.4.3,2.0)') { version { require '[1.4.3,2.0)'; prefer '1.4.3' } }
+    implementation 'com.typesafe:config:1.4.3'
 
     // ------------------------------------------------------------------
     // OC-LuaJ — pure-JVM Lua runtime (the only Lua backend for the
     // minimal-core milestone; JNLua/native backend deferred).
-    //
-    // TODO Phase 1: verify OC-LuaJ-20220907.1 runs on Java 21 (it was
-    // compiled for Java 8, so class-file compatibility should hold).
-    // If the ivy URL is unreachable, download the jar and place it at
-    // libs/OC-LuaJ-20220907.1.jar, then replace with:
-    //   jarJar(files('libs/OC-LuaJ-20220907.1.jar'))
+    // Available from the asie.pl ivy mirror configured in repositories {}.
+    // Class files were compiled for Java 8; compatible with Java 21+.
     // ------------------------------------------------------------------
-    // jarJar(name: 'OC-LuaJ', version: '20220907.1', ext: 'jar') { ... }
+    implementation(name: 'OC-LuaJ', version: '20220907.1', ext: 'jar')
 
     // ------------------------------------------------------------------
     // Tests
