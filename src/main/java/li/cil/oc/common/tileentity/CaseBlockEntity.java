@@ -46,6 +46,9 @@ public class CaseBlockEntity extends OcBlockEntity implements MachineHost, MenuP
     private int tier;
     private li.cil.oc.api.machine.Machine machine;
 
+    // Lazy Forge Energy bridge — created on first capability query
+    private OcEnergyStorage energyStorage;
+
     // Client-side state for rendering
     public boolean isRunning;
     public boolean hasErrored;
@@ -67,6 +70,11 @@ public class CaseBlockEntity extends OcBlockEntity implements MachineHost, MenuP
     @Override
     public li.cil.oc.api.machine.Machine machine() {
         return machine;
+    }
+
+    public OcEnergyStorage energyStorage() {
+        if (energyStorage == null) energyStorage = new OcEnergyStorage(this);
+        return energyStorage;
     }
 
     @Override

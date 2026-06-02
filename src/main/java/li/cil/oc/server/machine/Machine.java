@@ -10,6 +10,8 @@ import li.cil.oc.api.machine.LimitReachedException;
 import li.cil.oc.api.machine.MachineHost;
 import li.cil.oc.api.machine.Value;
 import li.cil.oc.api.network.Component;
+import li.cil.oc.api.network.ComponentConnector;
+import li.cil.oc.api.network.Connector;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
@@ -157,10 +159,20 @@ public class Machine extends AbstractManagedEnvironment
     public Machine(MachineHost host) {
         this.host = host;
         this.state.push(State.Stopped);
-        this.maxSignalQueueSize = Settings.get() != null ? Settings.get().maxSignalQueueSize : 256;
-        this.cost = Settings.get() != null
-            ? Settings.get().computerCost * Settings.get().tickFrequency
-            : 0;
+        Settings s = Settings.get();
+        this.maxSignalQueueSize = s != null ? s.maxSignalQueueSize : 256;
+        this.cost = s != null ? s.computerCost * s.tickFrequency : 0;
+
+        double bufferSize = s != null ? s.bufferComputer : 0;
+        setNode(li.cil.oc.api.Network.newNode(this, Visibility.Network)
+            .withComponent("computer", Visibility.Neighbors)
+            .withConnector(bufferSize)
+            .create());
+    }
+
+    public Connector connector() {
+        Node n = node();
+        return n instanceof Connector c ? c : null;
     }
 
     // ----------------------------------------------------------------------- //
@@ -263,8 +275,12 @@ public class Machine extends AbstractManagedEnvironment
                 processAddedComponents();
                 verifyComponents();
                 Settings s = Settings.get();
-                if (s != null && !s.ignorePower && node() != null) {
-                    // Power check placeholder — will hook into energy in Phase 8
+                if (s != null && !s.ignorePower) {
+                    Connector con = connector();
+                    if (con != null && con.globalBuffer() < cost) {
+                        crash("gui.Error.NoEnergy");
+                        return false;
+                    }
                 }
                 if (architecture == null || maxComponents == 0) {
                     beep("-");

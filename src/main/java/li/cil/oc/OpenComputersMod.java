@@ -1,10 +1,14 @@
 package li.cil.oc;
 
 import li.cil.oc.api.API;
+import li.cil.oc.api.network.Environment;
 import li.cil.oc.common.OcPacketPayload;
 import li.cil.oc.common.PacketHandler;
+import li.cil.oc.common.capabilities.OcCapabilities;
 import li.cil.oc.common.init.Registries;
 import li.cil.oc.server.machine.MachineAPIImpl;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -78,6 +82,7 @@ public class OpenComputersMod {
 
         modEventBus.addListener(this::onCommonSetup);
         modEventBus.addListener(this::onRegisterPayloadHandlers);
+        modEventBus.addListener(this::onRegisterCapabilities);
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modEventBus.addListener(ClientSetup::onRegisterMenuScreens);
             modEventBus.addListener(ClientSetup::onRegisterRenderers);
@@ -113,6 +118,21 @@ public class OpenComputersMod {
             OcPacketPayload.STREAM_CODEC,
             handler::handle
         );
+    }
+
+    private void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(
+            OcCapabilities.ENVIRONMENT,
+            Registries.CASE_BE.get(),
+            (be, side) -> {
+                Environment env = be.machine();
+                return env != null && env.node() != null ? env : null;
+            });
+
+        event.registerBlockEntity(
+            Capabilities.EnergyStorage.BLOCK,
+            Registries.CASE_BE.get(),
+            (be, side) -> be.energyStorage());
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {

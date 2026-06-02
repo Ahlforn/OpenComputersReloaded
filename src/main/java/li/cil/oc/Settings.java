@@ -340,6 +340,9 @@ public class Settings {
     public final double solarGeneratorEfficiency;
     public final double abstractBusPacketCost;
 
+    // energy conversion ratios (OC-internal = external / valueInternal)
+    public final double ratioForgeEnergy;
+
     // debug
     public final boolean logLuaCallbackErrors;
     public final boolean forceLuaJ;
@@ -649,6 +652,13 @@ public class Settings {
         generatorEfficiency = Math.max(0, config.getDouble("power.efficiency.generator"));
         solarGeneratorEfficiency = Math.max(0, config.getDouble("power.efficiency.solarGenerator"));
         abstractBusPacketCost = Math.max(0, config.getDouble("power.cost.abstractBusPacket"));
+
+        double valueInternal = 1000.0;
+        double valueRedstoneFlux = config.hasPath("power.value.RedstoneFlux")
+            ? config.getDouble("power.value.RedstoneFlux") : 100.0;
+        double valueForgeEnergy = config.hasPath("power.value.ForgeEnergy")
+            ? config.getDouble("power.value.ForgeEnergy") : valueRedstoneFlux;
+        ratioForgeEnergy = valueForgeEnergy / valueInternal;
 
         // debug
         logLuaCallbackErrors = config.getBoolean("debug.logCallbackErrors");
