@@ -148,12 +148,11 @@ sourceSets {
             exclude 'li/cil/oc/api/prefab/ItemStackArrayValue.java'
             exclude 'li/cil/oc/api/prefab/ItemStackTabIconRenderer.java'
             exclude 'li/cil/oc/api/prefab/TextureTabIconRenderer.java'
-            exclude 'li/cil/oc/api/prefab/TileEntityEnvironment.java'
+            // TileEntityEnvironment — rewritten in Phase 9 (unexcluded)
             exclude 'li/cil/oc/api/prefab/TileEntitySidedEnvironment.java'
             exclude 'li/cil/oc/api/prefab/AbstractInteractiveImageRenderer.java'
             exclude 'li/cil/oc/api/prefab/ResourceContentProvider.java'
-            // api/network: old ASM-injection interface (Phase 9)
-            exclude 'li/cil/oc/api/network/SimpleComponent.java'
+            // api/network/SimpleComponent — rewritten in Phase 9 (unexcluded)
             // top-level api files not needed for core or unfixed (Phase 10)
             exclude 'li/cil/oc/api/CreativeTab.java'
             exclude 'li/cil/oc/api/Driver.java'
@@ -163,7 +162,9 @@ sourceSets {
             exclude 'li/cil/oc/api/Nanomachines.java'
             // --- end api/ exclusions ----------------------------------------
 
-            exclude 'li/cil/oc/common/asm/**'
+            // SimpleComponentTickHandler rewritten in Phase 9 (unexcluded)
+            // template/* and ClassTransformer (Scala) remain excluded
+            exclude 'li/cil/oc/common/asm/template/**'
             exclude 'li/cil/oc/integration/**'
             exclude 'li/cil/oc/util/OCObfuscationReflectionHelper.java'
             exclude 'li/cil/oc/util/SideTracker.java'

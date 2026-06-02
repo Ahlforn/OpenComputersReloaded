@@ -1,54 +1,50 @@
 package li.cil.oc.common.asm;
 
 import li.cil.oc.api.Network;
-import li.cil.oc.util.SideTracker;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 
-// This class is used for adding simple components to the component network.
-// It is triggered from a validate call, and executed in the next update tick.
+/**
+ * Defers {@link Network#joinOrCreateNetwork} calls for simple components to
+ * the next server tick start, avoiding network-join during world loading.
+ *
+ * <p>Register {@link #INSTANCE} on the NeoForge game event bus once at mod
+ * startup.
+ */
 public final class SimpleComponentTickHandler {
-    private static final Logger log = LogManager.getLogger("OpenComputers");
 
-    public static final ArrayList<Runnable> pending = new java.util.ArrayList<Runnable>();
+    public static final SimpleComponentTickHandler INSTANCE = new SimpleComponentTickHandler();
 
-    public static final SimpleComponentTickHandler Instance = new SimpleComponentTickHandler();
+    private static final Logger LOG = LogManager.getLogger("OpenComputers");
 
-    private SimpleComponentTickHandler() {
-    }
+    public static final ArrayList<Runnable> pending = new ArrayList<>();
 
-    public static void schedule(final TileEntity tileEntity) {
-        if (SideTracker.isServer()) {
-            synchronized (pending) {
-                pending.add(new Runnable() {
-                    @Override
-                    public void run() {
-                        Network.joinOrCreateNetwork(tileEntity);
-                    }
-                });
-            }
+    private SimpleComponentTickHandler() {}
+
+    public static void schedule(BlockEntity blockEntity) {
+        synchronized (pending) {
+            pending.add(() -> Network.joinOrCreateNetwork(blockEntity));
         }
     }
 
     @SubscribeEvent
-    public void onTick(TickEvent.ServerTickEvent e) {
-        if (e.phase == TickEvent.Phase.START) {
-            final Runnable[] adds;
-            synchronized (pending) {
-                adds = pending.toArray(new Runnable[pending.size()]);
-                pending.clear();
-            }
-            for (Runnable runnable : adds) {
-                try {
-                    runnable.run();
-                } catch (Throwable t) {
-                    log.warn("Error in scheduled tick action.", t);
-                }
+    public void onServerTickPre(ServerTickEvent.Pre event) {
+        final Runnable[] tasks;
+        synchronized (pending) {
+            if (pending.isEmpty()) return;
+            tasks = pending.toArray(new Runnable[0]);
+            pending.clear();
+        }
+        for (Runnable task : tasks) {
+            try {
+                task.run();
+            } catch (Throwable t) {
+                LOG.warn("Error in SimpleComponent tick action.", t);
             }
         }
     }

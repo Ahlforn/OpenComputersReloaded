@@ -2,6 +2,7 @@ package li.cil.oc;
 
 import li.cil.oc.api.API;
 import li.cil.oc.api.network.Environment;
+import li.cil.oc.common.asm.SimpleComponentTickHandler;
 import li.cil.oc.common.OcPacketPayload;
 import li.cil.oc.common.PacketHandler;
 import li.cil.oc.common.capabilities.OcCapabilities;
@@ -90,6 +91,9 @@ public class OpenComputersMod {
 
         // Phase 2: DeferredRegisters for blocks, items, block-entity types, creative tab.
         Registries.register(modEventBus);
+
+        // Phase 9: register SimpleComponentTickHandler on the game event bus.
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(SimpleComponentTickHandler.INSTANCE);
 
         // TODO Phase 5:  register CustomPacketPayload types via
         //                RegisterPayloadHandlersEvent on the mod bus.
