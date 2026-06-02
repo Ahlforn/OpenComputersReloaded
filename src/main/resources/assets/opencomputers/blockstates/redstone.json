@@ -1,5 +1,5 @@
 {
     "variants": {
-        "normal": { "model": "opencomputers:redstone" }
+        "": { "model": "opencomputers:redstone" }
     }
 }

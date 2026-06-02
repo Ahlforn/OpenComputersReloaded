@@ -1,0 +1,8 @@
+{
+    "parent": "block/cube_bottom_top",
+    "textures": {
+        "bottom": "opencomputers:blocks/netsplitter_top",
+        "top": "opencomputers:blocks/netsplitter_top",
+        "side": "opencomputers:blocks/netsplitter_side"
+    }
+}

@@ -80,6 +80,7 @@ public class OpenComputersMod {
         modEventBus.addListener(this::onRegisterPayloadHandlers);
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modEventBus.addListener(ClientSetup::onRegisterMenuScreens);
+            modEventBus.addListener(ClientSetup::onRegisterRenderers);
         }
 
         // Phase 2: DeferredRegisters for blocks, items, block-entity types, creative tab.
