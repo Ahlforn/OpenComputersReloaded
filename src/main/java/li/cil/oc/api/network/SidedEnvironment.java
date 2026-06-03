@@ -3,7 +3,7 @@ package li.cil.oc.api.network;
 import net.minecraft.core.Direction;
 
 /**
- * This interface is like {@link net.minecraft.inventory.ISidedInventory} is to
+ * This interface is like {@link net.minecraft.inventory.WorldlyContainer} is to
  * {@link net.minecraft.inventory.IInventory}, it allows an environment to
  * specify different node access for its different sides.
  * <br>

@@ -1,8 +1,10 @@
 package li.cil.oc.api.prefab;
 
 import li.cil.oc.api.network.EnvironmentHost;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 
 /**
  * If you wish to create item components such as the network card or hard drives
@@ -30,7 +32,7 @@ public abstract class DriverItem implements li.cil.oc.api.driver.DriverItem {
     public boolean worksWith(final ItemStack stack) {
         if (!stack.isEmpty()) {
             for (ItemStack item : items) {
-                if (!item.isEmpty() && item.isItemEqual(stack)) {
+                if (!item.isEmpty() && item.getItem() == stack.getItem()) {
                     return true;
                 }
             }
@@ -44,17 +46,21 @@ public abstract class DriverItem implements li.cil.oc.api.driver.DriverItem {
     }
 
     @Override
-    public NBTTagCompound dataTag(final ItemStack stack) {
-        if (!stack.hasTagCompound()) {
-            stack.setTagCompound(new NBTTagCompound());
+    public CompoundTag dataTag(final ItemStack stack) {
+        CustomData existing = stack.get(DataComponents.CUSTOM_DATA);
+        CompoundTag root;
+        if (existing == null) {
+            root = new CompoundTag();
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(root));
+        } else {
+            root = existing.copyTag();
+            // Re-set so edits to 'root' are reflected when saved
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(root));
         }
-        final NBTTagCompound nbt = stack.getTagCompound();
-        // This is the suggested key under which to store item component data.
-        // You are free to change this as you please.
-        if (!nbt.hasKey("oc:data")) {
-            nbt.setTag("oc:data", new NBTTagCompound());
+        if (!root.contains("oc:data")) {
+            root.put("oc:data", new CompoundTag());
         }
-        return nbt.getCompoundTag("oc:data");
+        return root.getCompound("oc:data");
     }
 
     // Convenience methods provided for HostAware drivers.

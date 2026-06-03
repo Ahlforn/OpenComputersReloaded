@@ -6,9 +6,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -23,10 +23,10 @@ public class TextureTabIconRenderer implements TabIconRenderer {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void render() {
-        Minecraft.getMinecraft().getTextureManager().bindTexture(location);
-        GlStateManager.bindTexture(Minecraft.getMinecraft().getTextureManager().getTexture(location).getGlTextureId());
+        Minecraft.getInstance().getTextureManager().bindTexture(location);
+        GlStateManager.bindTexture(Minecraft.getInstance().getTextureManager().getTexture(location).getGlTextureId());
         final Tessellator t = Tessellator.getInstance();
         final BufferBuilder r = t.getBuffer();
         r.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);

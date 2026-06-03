@@ -8,11 +8,11 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.bus.api.ICancellableEvent;
+import net.neoforged.bus.api.Event;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -39,9 +39,9 @@ public abstract class RackMountableRenderEvent extends Event {
      *
      * @see RackMountable#getData()
      */
-    public final NBTTagCompound data;
+    public final CompoundTag data;
 
-    public RackMountableRenderEvent(Rack rack, int mountable, NBTTagCompound data) {
+    public RackMountableRenderEvent(Rack rack, int mountable, CompoundTag data) {
         this.rack = rack;
         this.mountable = mountable;
         this.data = data;
@@ -57,19 +57,18 @@ public abstract class RackMountableRenderEvent extends Event {
      * <br>
      * The bounds will be set up before this call, so you may adjust those, if you wish.
      */
-    @Cancelable
-    public static class Block extends RackMountableRenderEvent {
+        public static class Block extends RackMountableRenderEvent implements ICancellableEvent {
         /**
          * The front-facing side, i.e. where the mountable is visible on the rack.
          */
-        public final EnumFacing side;
+        public final Direction side;
 
         /**
          * Texture to use for the front of the mountable.
          */
         private TextureAtlasSprite frontTextureOverride;
 
-        public Block(final Rack rack, final int mountable, final NBTTagCompound data, final EnumFacing side) {
+        public Block(final Rack rack, final int mountable, final CompoundTag data, final Direction side) {
             super(rack, mountable, data);
             this.side = side;
         }
@@ -114,7 +113,7 @@ public abstract class RackMountableRenderEvent extends Event {
          */
         public final float v0, v1;
 
-        public TileEntity(final Rack rack, final int mountable, final NBTTagCompound data, final float v0, final float v1) {
+        public TileEntity(final Rack rack, final int mountable, final CompoundTag data, final float v0, final float v1) {
             super(rack, mountable, data);
             this.v0 = v0;
             this.v1 = v1;
@@ -138,7 +137,7 @@ public abstract class RackMountableRenderEvent extends Event {
          * @param u1      the upper end of the vertical area to render at.
          */
         public void renderOverlay(final ResourceLocation texture, final float u0, final float u1) {
-            Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
+            Minecraft.getInstance().getTextureManager().bindTexture(texture);
             final Tessellator t = Tessellator.getInstance();
             final BufferBuilder r = t.getBuffer();
             r.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
@@ -167,8 +166,8 @@ public abstract class RackMountableRenderEvent extends Event {
          * @param u1      the upper end of the vertical area to render at.
          */
         public void renderOverlayFromAtlas(final ResourceLocation texture, final float u0, final float u1) {
-            Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-            final TextureAtlasSprite icon = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture.toString());
+            Minecraft.getInstance().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+            final TextureAtlasSprite icon = Minecraft.getInstance().getTextureMapBlocks().getAtlasSprite(texture.toString());
             final Tessellator t = Tessellator.getInstance();
             final BufferBuilder r = t.getBuffer();
             r.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);

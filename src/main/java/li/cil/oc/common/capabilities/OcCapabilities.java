@@ -1,6 +1,7 @@
 package li.cil.oc.common.capabilities;
 
 import li.cil.oc.OpenComputersMod;
+import li.cil.oc.api.internal.Colored;
 import li.cil.oc.api.network.Environment;
 import li.cil.oc.api.network.SidedEnvironment;
 import net.minecraft.core.Direction;
@@ -20,7 +21,10 @@ public final class OcCapabilities {
             ResourceLocation.fromNamespaceAndPath(OpenComputersMod.MOD_ID, "sided_environment"),
             SidedEnvironment.class);
 
-    // COLORED capability (api/internal/Colored) will be added in Phase 10 (API revision)
+    public static final BlockCapability<Colored, @Nullable Direction> COLORED =
+        BlockCapability.createSided(
+            ResourceLocation.fromNamespaceAndPath(OpenComputersMod.MOD_ID, "colored"),
+            Colored.class);
 
     private OcCapabilities() {}
 }
