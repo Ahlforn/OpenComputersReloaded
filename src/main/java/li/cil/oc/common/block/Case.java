@@ -81,7 +81,7 @@ public class Case extends OcBlock implements EntityBlock {
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
             Level level, BlockState state, BlockEntityType<T> beType) {
-        if (level.isClientSide) return null;
+        if (level.isClientSide()) return null;
         return (lvl, pos, blockState, be) -> {
             if (be instanceof CaseBlockEntity cbe) cbe.serverTick(lvl, pos, blockState);
         };
@@ -94,9 +94,9 @@ public class Case extends OcBlock implements EntityBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
                                                Player player, BlockHitResult hit) {
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof CaseBlockEntity be) {
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof CaseBlockEntity be) {
             player.openMenu(be);
         }
-        return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 }

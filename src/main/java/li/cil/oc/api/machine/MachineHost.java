@@ -60,7 +60,7 @@ public interface MachineHost extends EnvironmentHost {
     default String machinePosition()
     {
         if (world() != null)
-            return String.format("(%g, %g, %g, %s)", xPosition(), yPosition(), zPosition(), world().dimension().location());
+            return String.format("(%g, %g, %g, %s)", xPosition(), yPosition(), zPosition(), world().dimension().identifier());
         else
             return String.format("(%g, %g, %g)", xPosition(), yPosition(), zPosition());
     }

@@ -36,7 +36,7 @@ public final class PacketSender {
         BlockPos pos = be.getBlockPos();
         try {
             PacketBuilder pb = PacketBuilder.simple(PacketType.ComputerState);
-            pb.writeInt(serverLevel.dimension().location().hashCode());
+            pb.writeInt(serverLevel.dimension().identifier().hashCode());
             pb.writeInt(pos.getX());
             pb.writeInt(pos.getY());
             pb.writeInt(pos.getZ());

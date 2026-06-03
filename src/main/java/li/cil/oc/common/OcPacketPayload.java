@@ -3,7 +3,7 @@ package li.cil.oc.common;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Single {@link CustomPacketPayload} type wrapping the raw byte buffer produced
@@ -21,7 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 public record OcPacketPayload(byte[] data) implements CustomPacketPayload {
 
     public static final Type<OcPacketPayload> TYPE =
-        new Type<>(ResourceLocation.fromNamespaceAndPath("opencomputers", "packet"));
+        new Type<>(Identifier.fromNamespaceAndPath("opencomputers", "packet"));
 
     // -----------------------------------------------------------------------
     // StreamCodec: length-prefixed byte array over RegistryFriendlyByteBuf

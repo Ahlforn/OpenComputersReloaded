@@ -48,7 +48,7 @@ public abstract class AbstractManagedEnvironment implements ManagedEnvironment {
     @Override
     public void load(final CompoundTag nbt) {
         if (node() != null) {
-            node().load(nbt.getCompound(NODE_TAG));
+            node().load(nbt.getCompoundOrEmpty(NODE_TAG));
         }
     }
 

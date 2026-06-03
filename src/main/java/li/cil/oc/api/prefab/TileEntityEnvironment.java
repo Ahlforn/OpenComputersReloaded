@@ -5,11 +5,12 @@ import li.cil.oc.api.network.Environment;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * Block entities can implement {@link Environment} to interact with the OC
@@ -44,7 +45,7 @@ public abstract class TileEntityEnvironment extends BlockEntity implements Envir
     @Override
     public void onLoad() {
         super.onLoad();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             Network.joinOrCreateNetwork(this);
         }
     }
@@ -62,20 +63,20 @@ public abstract class TileEntityEnvironment extends BlockEntity implements Envir
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        if (node != null && node.host() == this && tag.contains(TAG_NODE)) {
-            node.load(tag.getCompound(TAG_NODE));
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        if (node != null && node.host() == this) {
+            input.read(TAG_NODE, CompoundTag.CODEC).ifPresent(node::load);
         }
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
         if (node != null && node.host() == this) {
             CompoundTag nodeTag = new CompoundTag();
             node.save(nodeTag);
-            tag.put(TAG_NODE, nodeTag);
+            output.store(TAG_NODE, CompoundTag.CODEC, nodeTag);
         }
     }
 }

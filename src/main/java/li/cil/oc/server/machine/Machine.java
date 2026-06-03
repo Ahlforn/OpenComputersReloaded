@@ -685,25 +685,25 @@ public class Machine extends AbstractManagedEnvironment
 
                 super.load(nbt);
 
-                int[] stateArray = nbt.getIntArray(STATE_TAG);
+                int[] stateArray = nbt.getIntArray(STATE_TAG).orElse(new int[0]);
                 for (int i = stateArray.length - 1; i >= 0; i--) {
                     state.push(State.fromOrdinal(stateArray[i]));
                 }
 
-                ListTag userList = nbt.getList(USERS_TAG, Tag.TAG_STRING);
+                ListTag userList = nbt.getListOrEmpty(USERS_TAG);
                 for (int i = 0; i < userList.size(); i++) {
-                    _users.add(userList.getString(i));
+                    userList.getString(i).ifPresent(_users::add);
                 }
 
-                if (nbt.contains(MESSAGE_TAG)) {
-                    message = nbt.getString(MESSAGE_TAG);
-                }
+                message = nbt.getString(MESSAGE_TAG).orElse(null);
 
-                ListTag componentList = nbt.getList(COMPONENTS_TAG, Tag.TAG_COMPOUND);
+                ListTag componentList = nbt.getListOrEmpty(COMPONENTS_TAG);
                 synchronized (_components) {
                     for (int i = 0; i < componentList.size(); i++) {
-                        CompoundTag tag = componentList.getCompound(i);
-                        _components.put(tag.getString(ADDRESS_TAG), tag.getString(NAME_TAG));
+                        CompoundTag tag = componentList.getCompoundOrEmpty(i);
+                        String addr = tag.getStringOr(ADDRESS_TAG, "");
+                        String name = tag.getStringOr(NAME_TAG, "");
+                        if (!addr.isEmpty() && !name.isEmpty()) _components.put(addr, name);
                     }
                 }
 
@@ -713,23 +713,23 @@ public class Machine extends AbstractManagedEnvironment
                     try {
                         architecture.load(nbt);
 
-                        ListTag signalList = nbt.getList(SIGNALS_TAG, Tag.TAG_COMPOUND);
+                        ListTag signalList = nbt.getListOrEmpty(SIGNALS_TAG);
                         synchronized (signals) {
                             for (int i = 0; i < signalList.size(); i++) {
-                                CompoundTag signalNbt = signalList.getCompound(i);
-                                CompoundTag argsNbt = signalNbt.getCompound(ARGS_TAG);
-                                int argsLength = argsNbt.getInt(LENGTH_TAG);
+                                CompoundTag signalNbt = signalList.getCompoundOrEmpty(i);
+                                CompoundTag argsNbt = signalNbt.getCompoundOrEmpty(ARGS_TAG);
+                                int argsLength = argsNbt.getIntOr(LENGTH_TAG, 0);
                                 Object[] args = new Object[argsLength];
                                 for (int j = 0; j < argsLength; j++) {
                                     args[j] = loadSignalArg(argsNbt, ARG_PREFIX_TAG + j);
                                 }
-                                signals.add(new Signal(signalNbt.getString(NAME_TAG), args));
+                                signals.add(new Signal(signalNbt.getStringOr(NAME_TAG, ""), args));
                             }
                         }
 
-                        uptime = nbt.getLong(UPTIME_TAG);
-                        cpuTotal = nbt.getLong(CPU_TIME_TAG);
-                        remainingPause = nbt.getInt(REMAINING_PAUSE_TAG);
+                        uptime = nbt.getLongOr(UPTIME_TAG, 0L);
+                        cpuTotal = nbt.getLongOr(CPU_TIME_TAG, 0L);
+                        remainingPause = nbt.getIntOr(REMAINING_PAUSE_TAG, 0);
 
                         if (state.peek() != State.Restarting) {
                             pause(Settings.get() != null ? Settings.get().startupDelay : 0.5);
@@ -928,18 +928,18 @@ public class Machine extends AbstractManagedEnvironment
         Tag tag = nbt.get(key);
         return switch (tag.getId()) {
             case Tag.TAG_BYTE -> {
-                byte b = ((net.minecraft.nbt.ByteTag) tag).getAsByte();
+                byte b = ((net.minecraft.nbt.NumericTag) tag).byteValue();
                 yield b == -1 ? null : (b == 1);
             }
-            case Tag.TAG_LONG -> ((net.minecraft.nbt.LongTag) tag).getAsLong();
-            case Tag.TAG_DOUBLE -> ((net.minecraft.nbt.DoubleTag) tag).getAsDouble();
-            case Tag.TAG_STRING -> tag.getAsString();
+            case Tag.TAG_LONG -> ((net.minecraft.nbt.NumericTag) tag).longValue();
+            case Tag.TAG_DOUBLE -> ((net.minecraft.nbt.NumericTag) tag).doubleValue();
+            case Tag.TAG_STRING -> tag.asString().orElse("");
             case Tag.TAG_BYTE_ARRAY -> ((net.minecraft.nbt.ByteArrayTag) tag).getAsByteArray();
             case Tag.TAG_LIST -> {
                 ListTag list = (ListTag) tag;
                 Map<String, String> map = new HashMap<>();
                 for (int i = 0; i + 1 < list.size(); i += 2) {
-                    map.put(list.getString(i), list.getString(i + 1));
+                    map.put(list.getStringOr(i, ""), list.getStringOr(i + 1, ""));
                 }
                 yield map;
             }

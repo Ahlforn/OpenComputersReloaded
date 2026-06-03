@@ -5,12 +5,15 @@ import li.cil.oc.api.network.Connector;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.util.Power;
 import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /**
  * Bridges NeoForge Forge Energy (RF) to the OC-internal energy buffer held
  * by a {@link CaseBlockEntity}'s machine {@link Connector} node.
  */
-public class OcEnergyStorage implements IEnergyStorage {
+@SuppressWarnings("deprecation")
+public class OcEnergyStorage implements IEnergyStorage, EnergyHandler {
 
     private final CaseBlockEntity be;
 
@@ -62,5 +65,22 @@ public class OcEnergyStorage implements IEnergyStorage {
     public boolean canReceive() {
         Settings s = Settings.get();
         return s == null || !s.ignorePower;
+    }
+
+    // EnergyHandler implementation (NeoForge 26.1+ transfer API)
+    @Override
+    public long getAmountAsLong() { return getEnergyStored(); }
+
+    @Override
+    public long getCapacityAsLong() { return getMaxEnergyStored(); }
+
+    @Override
+    public int insert(int amount, TransactionContext context) {
+        return receiveEnergy(amount, false);
+    }
+
+    @Override
+    public int extract(int amount, TransactionContext context) {
+        return extractEnergy(amount, false);
     }
 }

@@ -1,5 +1,5 @@
 modLoader = "javafml"
-# NeoForge FML version — 4.x ships with NeoForge 21.x (MC 1.21.x)
+# NeoForge FML loader version — 4.x covers NeoForge 26.1 (MC 26.1 / Java 25).
 loaderVersion = "[4,)"
 
 license = "MIT"
@@ -28,8 +28,7 @@ license = "MIT"
 [[dependencies.opencomputers]]
     modId = "neoforge"
     type = "required"
-    # Require any NeoForge in the 1.21.4 series (21.4.x).
-    # Bump the floor when moving to the 26.1 milestone.
+    # Require NeoForge 26.1.x or newer.
     versionRange = "[${neoforge_version},)"
     ordering = "NONE"
     side = "BOTH"

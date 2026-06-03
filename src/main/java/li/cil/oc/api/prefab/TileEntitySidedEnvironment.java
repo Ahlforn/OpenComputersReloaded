@@ -5,11 +5,12 @@ import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.SidedEnvironment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 /**
  * BlockEntities can implement the {@link li.cil.oc.api.network.SidedEnvironment}
@@ -58,26 +59,27 @@ public abstract class TileEntitySidedEnvironment extends BlockEntity implements 
     }
 
     @Override
-    public void loadAdditional(final CompoundTag nbt, final HolderLookup.Provider registries) {
-        super.loadAdditional(nbt, registries);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
         int index = 0;
         for (Node node : nodes) {
             if (node != null && node.host() == this) {
-                node.load(nbt.getCompound("oc:node" + index));
+                final int i = index;
+                input.read("oc:node" + i, CompoundTag.CODEC).ifPresent(node::load);
             }
             ++index;
         }
     }
 
     @Override
-    public void saveAdditional(CompoundTag nbt, final HolderLookup.Provider registries) {
-        super.saveAdditional(nbt, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
         int index = 0;
         for (Node node : nodes) {
             if (node != null && node.host() == this) {
                 final CompoundTag nodeNbt = new CompoundTag();
                 node.save(nodeNbt);
-                nbt.put("oc:node" + index, nodeNbt);
+                output.store("oc:node" + index, CompoundTag.CODEC, nodeNbt);
             }
             ++index;
         }

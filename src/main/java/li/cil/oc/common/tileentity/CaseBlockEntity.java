@@ -10,6 +10,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -129,7 +131,7 @@ public class CaseBlockEntity extends OcBlockEntity implements MachineHost, MenuP
 
     /** Called once when the BE is placed into the world. */
     private void initMachine() {
-        if (machine == null && level != null && !level.isClientSide && API.machine != null) {
+        if (machine == null && level != null && !level.isClientSide() && API.machine != null) {
             machine = API.machine.create(this);
         }
     }
@@ -174,33 +176,33 @@ public class CaseBlockEntity extends OcBlockEntity implements MachineHost, MenuP
     // -----------------------------------------------------------------------
 
     @Override
-    protected void loadServer(CompoundTag nbt, HolderLookup.Provider registries) {
-        tier = Math.max(0, Math.min(3, nbt.getByte(TIER_TAG)));
+    protected void loadServer(ValueInput input) {
+        tier = Math.max(0, Math.min(3, input.getByteOr(TIER_TAG, (byte) 0)));
         initMachine();
         if (machine != null) {
-            machine.load(nbt.getCompound(MACHINE_TAG));
+            input.read(MACHINE_TAG, CompoundTag.CODEC).ifPresent(machine::load);
             isRunning = machine.isRunning();
         }
     }
 
     @Override
-    protected void saveServer(CompoundTag nbt, HolderLookup.Provider registries) {
-        nbt.putByte(TIER_TAG, (byte) tier);
+    protected void saveServer(ValueOutput output) {
+        output.putByte(TIER_TAG, (byte) tier);
         if (machine != null) {
             CompoundTag machineTag = new CompoundTag();
             machine.save(machineTag);
-            nbt.put(MACHINE_TAG, machineTag);
+            output.store(MACHINE_TAG, CompoundTag.CODEC, machineTag);
         }
     }
 
     @Override
-    protected void loadClient(CompoundTag nbt, HolderLookup.Provider registries) {
-        isRunning  = nbt.getBoolean(RUNNING_TAG);
-        hasErrored = nbt.getBoolean(ERROR_TAG);
+    protected void loadClient(ValueInput input) {
+        isRunning  = input.getBooleanOr(RUNNING_TAG, false);
+        hasErrored = input.getBooleanOr(ERROR_TAG, false);
     }
 
     @Override
-    protected void saveClient(CompoundTag nbt, HolderLookup.Provider registries) {
+    protected void fillClientUpdateTag(CompoundTag nbt) {
         nbt.putBoolean(RUNNING_TAG, machine != null && machine.isRunning());
         nbt.putBoolean(ERROR_TAG,   machine != null && machine.lastError() != null);
     }

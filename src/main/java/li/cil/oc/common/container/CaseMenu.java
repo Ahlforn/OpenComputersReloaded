@@ -47,7 +47,7 @@ public class CaseMenu extends OcMenu {
     // -----------------------------------------------------------------------
 
     private static CaseBlockEntity lookupBE(Inventory inv, FriendlyByteBuf buf) {
-        if (inv.player.level().isClientSide) return null;
+        if (inv.player.level().isClientSide()) return null;
         var pos = buf.readBlockPos();
         if (inv.player.level().getBlockEntity(pos) instanceof CaseBlockEntity be) return be;
         return null;

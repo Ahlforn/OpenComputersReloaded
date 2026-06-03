@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.io.*;
 import java.util.zip.Deflater;
@@ -33,7 +34,7 @@ public abstract class PacketBuilder extends DataOutputStream {
     // -----------------------------------------------------------------------
 
     public void writeBlockEntity(Level world, BlockPos pos) throws IOException {
-        writeInt(world.dimension().location().hashCode()); // dimension identifier stub
+        writeInt(world.dimension().identifier().hashCode()); // dimension identifier stub
         writeInt(pos.getX());
         writeInt(pos.getY());
         writeInt(pos.getZ());
@@ -61,7 +62,7 @@ public abstract class PacketBuilder extends DataOutputStream {
     }
 
     public void sendToServer() throws IOException {
-        PacketDistributor.sendToServer(buildPayload());
+        ClientPacketDistributor.sendToServer(buildPayload());
     }
 
     public void sendToPlayersNear(Level level, double x, double y, double z, double range)

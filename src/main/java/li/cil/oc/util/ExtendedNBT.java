@@ -1,8 +1,10 @@
 package li.cil.oc.util;
 
 import com.google.common.base.Charsets;
+import com.mojang.serialization.DynamicOps;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.*;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
@@ -51,8 +53,8 @@ public final class ExtendedNBT {
 
     /** Reads an optional Direction stored as a signed byte (−1 → absent). */
     public static Optional<Direction> getDirection(CompoundTag nbt, String name) {
-        if (!nbt.contains(name, Tag.TAG_BYTE)) return Optional.empty();
-        byte id = nbt.getByte(name);
+        if (!nbt.contains(name)) return Optional.empty();
+        byte id = nbt.getByteOr(name, (byte) -1);
         Direction[] values = Direction.values();
         if (id < 0 || id >= values.length) return Optional.empty();
         return Optional.of(values[id]);
@@ -70,7 +72,7 @@ public final class ExtendedNBT {
 
     /** Reads a boolean[] stored as a byte array (1 = true, 0 = false). */
     public static boolean[] getBooleanArray(CompoundTag nbt, String name) {
-        byte[] bytes = nbt.getByteArray(name);
+        byte[] bytes = nbt.getByteArray(name).orElse(new byte[0]);
         boolean[] result = new boolean[bytes.length];
         for (int i = 0; i < bytes.length; i++) result[i] = bytes[i] == 1;
         return result;
@@ -90,7 +92,10 @@ public final class ExtendedNBT {
     /** Serialises an ItemStack to a CompoundTag (empty stack → empty tag). */
     public static CompoundTag itemStackToNbt(ItemStack stack, net.minecraft.core.HolderLookup.Provider registries) {
         if (stack.isEmpty()) return new CompoundTag();
-        return (CompoundTag) stack.save(registries);
+        var ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        return (CompoundTag) ItemStack.CODEC.encodeStart(ops, stack)
+            .resultOrPartial(e -> {})
+            .orElseGet(CompoundTag::new);
     }
 
     // -----------------------------------------------------------------------
@@ -195,14 +200,14 @@ public final class ExtendedNBT {
      */
     public static Map<String, Object> nbtToTypedMap(Tag tag) {
         Object value = switch (tag.getId()) {
-            case TAG_BYTE   -> ((ByteTag) tag).getAsByte();
-            case TAG_SHORT  -> ((ShortTag) tag).getAsShort();
-            case TAG_INT    -> ((IntTag) tag).getAsInt();
-            case TAG_LONG   -> ((LongTag) tag).getAsLong();
-            case TAG_FLOAT  -> ((FloatTag) tag).getAsFloat();
-            case TAG_DOUBLE -> ((DoubleTag) tag).getAsDouble();
+            case TAG_BYTE   -> ((NumericTag) tag).byteValue();
+            case TAG_SHORT  -> ((NumericTag) tag).shortValue();
+            case TAG_INT    -> ((NumericTag) tag).intValue();
+            case TAG_LONG   -> ((NumericTag) tag).longValue();
+            case TAG_FLOAT  -> ((NumericTag) tag).floatValue();
+            case TAG_DOUBLE -> ((NumericTag) tag).doubleValue();
             case TAG_BYTE_ARRAY -> ((ByteArrayTag) tag).getAsByteArray();
-            case TAG_STRING -> tag.getAsString();
+            case TAG_STRING -> tag.asString().orElse("");
             case TAG_LIST   -> {
                 ListTag list = (ListTag) tag;
                 List<Map<String, Object>> entries = new ArrayList<>(list.size());
@@ -212,7 +217,7 @@ public final class ExtendedNBT {
             case TAG_COMPOUND -> {
                 CompoundTag compound = (CompoundTag) tag;
                 Map<String, Object> map = new LinkedHashMap<>();
-                for (String key : compound.getAllKeys()) {
+                for (String key : compound.keySet()) {
                     map.put(key, nbtToTypedMap(compound.get(key)));
                 }
                 yield map;

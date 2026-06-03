@@ -60,7 +60,7 @@ public abstract class DriverItem implements li.cil.oc.api.driver.DriverItem {
         if (!root.contains("oc:data")) {
             root.put("oc:data", new CompoundTag());
         }
-        return root.getCompound("oc:data");
+        return root.getCompoundOrEmpty("oc:data");
     }
 
     // Convenience methods provided for HostAware drivers.

@@ -84,7 +84,7 @@ public class OpenComputersMod {
         modEventBus.addListener(this::onCommonSetup);
         modEventBus.addListener(this::onRegisterPayloadHandlers);
         modEventBus.addListener(this::onRegisterCapabilities);
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             modEventBus.addListener(ClientSetup::onRegisterMenuScreens);
             modEventBus.addListener(ClientSetup::onRegisterRenderers);
         }
@@ -134,7 +134,7 @@ public class OpenComputersMod {
             });
 
         event.registerBlockEntity(
-            Capabilities.EnergyStorage.BLOCK,
+            Capabilities.Energy.BLOCK,
             Registries.CASE_BE.get(),
             (be, side) -> be.energyStorage());
     }

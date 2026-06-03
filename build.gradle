@@ -30,26 +30,12 @@ group = 'li.cil.oc'
 // ---------------------------------------------------------------------------
 // Java toolchain
 //
-// The intermediate migration target (NeoForge 21.4.x / MC 1.21.4) requires
-// Java 21 at runtime, but we compile with whatever JDK is available (Java 25
-// on this machine) and set the release flag to 21 so the output class files
-// are compatible with Java 21+ runtimes.
-//
-// Once Phase 11 (NeoForge 26.1 / MC 26.1) lands, the release flag can be
-// relaxed to 25.
-//
-// If you have Java 21 installed and want to use it for stricter compatibility
-// checking, add this to gradle.properties:
-//   org.gradle.java.home=/path/to/jdk21
+// NeoForge 26.1 / MC 26.1 ships Java 25 to end users; mods must target Java 25.
 // ---------------------------------------------------------------------------
 
-// NeoForge 1.21.4 internally needs Java 21 for artifact-processing tasks.
-// The Foojay resolver in settings.gradle provisions it automatically if not
-// present.  Our source is compiled with whatever JDK is available and the
-// bytecode is targeted at Java 21 for runtime compatibility.
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
     withSourcesJar()
     withJavadocJar()
@@ -57,9 +43,7 @@ java {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-    // Explicit release flag keeps bytecode compatible with Java 21 even when
-    // compiled by a newer JDK.  Phase 11 bumps this to 25.
-    options.release = 21
+    options.release = 25
 }
 
 // The legacy api/ Javadoc uses <tt> which is not valid HTML5.

@@ -9,11 +9,8 @@ pluginManagement {
 }
 
 // Foojay toolchain resolver — allows Gradle to automatically download a
-// matching JDK (Java 21) when the system does not have it installed.
-// NeoForge 1.21.4 requires Java 21 for its artifact-processing tasks even
-// though we compile with the installed Java 25.
-// Once Phase 11 (NeoForge 26.1 / MC 26.1) lands and Java 25 is the only
-// requirement, this can be removed (or kept — it does no harm).
+// matching JDK (Java 25) when the system does not have it installed.
+// NeoForge 26.1 / MC 26.1 requires Java 25.
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
