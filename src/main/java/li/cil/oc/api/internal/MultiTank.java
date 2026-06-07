@@ -21,5 +21,6 @@ public interface MultiTank {
      * @param index the index of the tank to get.
      * @return the tank with the specified index.
      */
+    @SuppressWarnings("removal")
     IFluidTank getFluidTank(int index);
 }

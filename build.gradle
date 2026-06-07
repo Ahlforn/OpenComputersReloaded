@@ -137,8 +137,8 @@ sourceSets {
 
 repositories {
     maven {
-        name 'MightyPirates'
-        url 'https://maven.cil.li/'
+        name = 'MightyPirates'
+        url = 'https://maven.cil.li/'
         content {
             // OC-LuaJ, OC-JNLua are published here.
             // These artifact IDs may need updating for new builds targeting Java 21+.
@@ -147,8 +147,8 @@ repositories {
     }
     // asie.pl ivy mirror for legacy OC embedded deps (OC-LuaJ-Natives, etc.)
     ivy {
-        name 'asie dependency mirror'
-        url 'https://asie.pl/javadeps/'
+        name = 'asie dependency mirror'
+        url = 'https://asie.pl/javadeps/'
         patternLayout {
             artifact '[module]-[revision](-[classifier]).[ext]'
         }

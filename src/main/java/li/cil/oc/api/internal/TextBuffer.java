@@ -3,8 +3,6 @@ package li.cil.oc.api.internal;
 import li.cil.oc.api.Persistable;
 import li.cil.oc.api.network.ManagedEnvironment;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * This interface implements functionality for displaying and manipulating
@@ -495,7 +493,6 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      * @return <tt>true</tt> if the displayed content changed since the last
      * call to this method.
      */
-    @OnlyIn(Dist.CLIENT)
     boolean renderText();
 
     /**
@@ -507,7 +504,6 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      *
      * @return the total width of the rendered buffer, in pixels.
      */
-    @OnlyIn(Dist.CLIENT)
     int renderWidth();
 
     /**
@@ -519,7 +515,6 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      *
      * @return the total height of the rendered buffer, in pixels.
      */
-    @OnlyIn(Dist.CLIENT)
     int renderHeight();
 
     /**
@@ -530,7 +525,6 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      *
      * @param enabled whether the text buffer should be rendered.
      */
-    @OnlyIn(Dist.CLIENT)
     void setRenderingEnabled(boolean enabled);
 
     /**
@@ -538,7 +532,6 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      *
      * @see #setRenderingEnabled(boolean)
      */
-    @OnlyIn(Dist.CLIENT)
     boolean isRenderingEnabled();
 
     // ----------------------------------------------------------------------- //

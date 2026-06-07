@@ -3,8 +3,8 @@ package li.cil.oc.api.network;
 import net.minecraft.core.Direction;
 
 /**
- * This interface is like {@link net.minecraft.inventory.WorldlyContainer} is to
- * {@link net.minecraft.inventory.IInventory}, it allows an environment to
+ * This interface is like {@link net.minecraft.world.WorldlyContainer} is to
+ * {@link net.minecraft.world.Container}, it allows an environment to
  * specify different node access for its different sides.
  * <br>
  * This interface is intended to be used on tile entities that are environments.

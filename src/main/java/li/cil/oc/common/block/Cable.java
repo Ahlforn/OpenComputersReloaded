@@ -6,11 +6,15 @@ import net.minecraft.world.level.material.MapColor;
 
 public class Cable extends OcBlock {
 
-    public Cable() {
-        super(BlockBehaviour.Properties.of()
+    public static BlockBehaviour.Properties defaultProperties() {
+        return BlockBehaviour.Properties.of()
             .mapColor(MapColor.METAL)
             .strength(1.0f, 2.0f)
             .sound(SoundType.METAL)
-            .noOcclusion());
+            .noOcclusion();
+    }
+
+    public Cable(BlockBehaviour.Properties props) {
+        super(props);
     }
 }

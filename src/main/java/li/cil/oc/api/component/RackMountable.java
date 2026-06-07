@@ -21,7 +21,7 @@ import net.minecraft.world.InteractionHand;
  * defined by the rack's configuration.
  * <br>
  * Note: mountables may implement the {@link ComponentHost} interface and
- * {@link IInventory}. In this case, if they contain a redstone card and have
+ * {@link net.minecraft.world.Container}. In this case, if they contain a redstone card and have
  * a state of <tt>State.IsWorking</tt> the rack will visually connect to
  * redstone, for example. Same goes for abstract bus cards, and potentially
  * more things in the future.

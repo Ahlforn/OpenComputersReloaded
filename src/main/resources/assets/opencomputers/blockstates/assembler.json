@@ -1,5 +1,5 @@
 {
     "variants": {
-        "": { "model": "opencomputers:assembler" }
+        "": { "model": "opencomputers:block/assembler" }
     }
 }

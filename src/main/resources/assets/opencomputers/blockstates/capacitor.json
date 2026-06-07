@@ -1,5 +1,5 @@
 {
     "variants": {
-        "": { "model": "opencomputers:capacitor" }
+        "": { "model": "opencomputers:block/capacitor" }
     }
 }

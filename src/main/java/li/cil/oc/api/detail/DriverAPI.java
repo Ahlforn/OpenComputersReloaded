@@ -167,6 +167,7 @@ public interface DriverAPI {
      * @param player the player holding the item. May be <tt>null</tt>.
      * @return the IItemHandler implementation interfacing the stack, or <tt>null</tt>.
      */
+    @SuppressWarnings("removal")
     IItemHandler itemHandlerFor(ItemStack stack, Player player);
 
     /**

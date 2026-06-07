@@ -4,14 +4,11 @@ loaderVersion = "[4,)"
 
 license = "MIT"
 
-# Mod logo shown in the mod list screen
-[[logoFile]]
-    file = "assets/opencomputers/textures/gui/logo.png"
-
 [[mods]]
     modId = "opencomputers"
     version = "${mod_version}"
     displayName = "OpenComputers"
+    logoFile = "assets/opencomputers/textures/gui/logo.png"
     description = '''
         OpenComputers adds modular computers and robots that can be programmed
         in Lua. Computers and robots persist across chunk unloads and can

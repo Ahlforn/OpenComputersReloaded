@@ -42,7 +42,7 @@ public final class Network {
      * respective for each side is used when connecting, and each side's node
      * is added to its own new network, if necessary.
      *
-     * @param tileEntity the tile entity to initialize.
+     * @param blockEntity the block entity to initialize.
      */
     public static void joinOrCreateNetwork(final BlockEntity blockEntity) {
         if (API.network != null)

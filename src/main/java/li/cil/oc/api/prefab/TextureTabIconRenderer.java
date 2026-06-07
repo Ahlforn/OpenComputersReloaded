@@ -7,8 +7,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
 
 /**
@@ -23,7 +21,6 @@ public class TextureTabIconRenderer implements TabIconRenderer {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
     public void render() {
         Minecraft.getInstance().getTextureManager().bindTexture(location);
         GlStateManager.bindTexture(Minecraft.getInstance().getTextureManager().getTexture(location).getGlTextureId());

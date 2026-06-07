@@ -5,8 +5,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Client-side screen for the computer case GUI.
@@ -15,7 +13,6 @@ import net.neoforged.api.distmarker.OnlyIn;
  * This stub simply renders nothing, keeping the game from crashing when
  * a player right-clicks a case.</p>
  */
-@OnlyIn(Dist.CLIENT)
 public class CaseScreen extends AbstractContainerScreen<CaseMenu> {
 
     public CaseScreen(CaseMenu menu, Inventory inventory, Component title) {

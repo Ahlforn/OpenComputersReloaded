@@ -6,8 +6,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Simple implementation of a tab icon renderer using an item stack as its graphic.
@@ -20,7 +18,6 @@ public class ItemStackTabIconRenderer implements TabIconRenderer {
         this.stack = stack;
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void render() {
         GlStateManager.enableRescaleNormal();

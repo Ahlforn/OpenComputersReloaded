@@ -214,6 +214,7 @@ public final class Driver {
      * @param player the player holding the item. May be <tt>null</tt>.
      * @return the IItemHandler implementation interfacing the stack, or <tt>null</tt>.
      */
+    @SuppressWarnings("removal")
     public static IItemHandler itemHandlerFor(ItemStack stack, Player player) {
         if (API.driver != null)
             return API.driver.itemHandlerFor(stack, player);

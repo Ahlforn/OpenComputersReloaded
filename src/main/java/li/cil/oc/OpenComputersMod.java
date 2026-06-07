@@ -8,6 +8,7 @@ import li.cil.oc.common.PacketHandler;
 import li.cil.oc.common.capabilities.OcCapabilities;
 import li.cil.oc.common.init.Registries;
 import li.cil.oc.server.machine.MachineAPIImpl;
+import li.cil.oc.server.network.NetworkAPIImpl;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.api.distmarker.Dist;
@@ -95,6 +96,12 @@ public class OpenComputersMod {
         // Phase 9: register SimpleComponentTickHandler on the game event bus.
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(SimpleComponentTickHandler.INSTANCE);
 
+        // Wireless network: per-dimension R-tree cleanup on level/chunk events.
+        li.cil.oc.server.network.WirelessNetwork.init();
+
+        // Waypoints: per-dimension spatial registry with R-tree.
+        li.cil.oc.server.network.Waypoints.init();
+
         // TODO Phase 5:  register CustomPacketPayload types via
         //                RegisterPayloadHandlersEvent on the mod bus.
         // TODO Phase 6:  Registries.MENU_TYPES.register(modEventBus);
@@ -120,7 +127,8 @@ public class OpenComputersMod {
         registrar.playBidirectional(
             OcPacketPayload.TYPE,
             OcPacketPayload.STREAM_CODEC,
-            handler::handle
+            handler::handle,   // serverbound: server receives from client
+            handler::handle    // clientbound: client receives from server
         );
     }
 
@@ -137,10 +145,18 @@ public class OpenComputersMod {
             Capabilities.Energy.BLOCK,
             Registries.CASE_BE.get(),
             (be, side) -> be.energyStorage());
+
+        event.registerBlockEntity(
+            OcCapabilities.ENVIRONMENT,
+            Registries.WAYPOINT_BE.get(),
+            (be, side) -> be.node() != null ? be : null);
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {
         LOGGER.info("OpenComputers common setup.");
+
+        // Phase 1: wire NetworkAPI (node graph, energy distribution, packet routing).
+        API.network = new NetworkAPIImpl();
 
         // Phase 3: wire MachineAPI so Case block entities can create machines.
         API.machine = new MachineAPIImpl();

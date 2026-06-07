@@ -3,6 +3,7 @@ package li.cil.oc.server.machine;
 import li.cil.oc.OpenComputersMod;
 import li.cil.oc.Settings;
 import li.cil.oc.api.machine.Architecture;
+import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Callback;
 import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.machine.ExecutionResult;
@@ -16,6 +17,7 @@ import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
 import li.cil.oc.api.prefab.AbstractManagedEnvironment;
+import li.cil.oc.server.driver.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -36,8 +38,9 @@ import java.util.concurrent.TimeUnit;
  * Core machine runtime. Implements the {@link li.cil.oc.api.machine.Machine} interface
  * and drives the architecture execution loop on the computer thread pool.
  *
- * Phase 1 stubs: PacketSender, EventHandler.scheduleClose, SaveHandler, Registry.convert,
- * and canInteract admin checks are all no-ops until their subsystems are ported.
+ * Phase 1 stubs: PacketSender, EventHandler.scheduleClose, SaveHandler, and canInteract admin
+ * checks are all no-ops until their subsystems are ported. Component dispatch (methods/invoke/
+ * Callbacks/Registry.convert) is wired as of the component-dispatch phase.
  */
 public class Machine extends AbstractManagedEnvironment
     implements li.cil.oc.api.machine.Machine, Runnable {
@@ -440,23 +443,41 @@ public class Machine extends AbstractManagedEnvironment
 
     @Override
     public Map<String, Callback> methods(Object value) {
-        // Phase 2: Callbacks/Registry not yet ported — return empty map
-        return Collections.emptyMap();
+        Map<String, Callback> result = new HashMap<>();
+        for (Map.Entry<String, Callbacks.Callback> entry : Callbacks.apply(value).entrySet()) {
+            result.put(entry.getKey(), entry.getValue().annotation());
+        }
+        return result;
     }
 
     @Override
     public Object[] invoke(String address, String method, Object[] args) throws Exception {
         if (node() != null && node().network() != null) {
-            // Phase 2 stub: direct component invocation via network node
-            throw new IllegalArgumentException("component invocation not yet supported (Phase 2)");
+            Node n = node().network().node(address);
+            if (n instanceof Component component && (component.canBeSeenFrom(node()) || component == node())) {
+                Callback annotation = component.annotation(method);
+                if (annotation != null && annotation.direct()) {
+                    consumeCallBudget(1.0 / annotation.limit());
+                }
+                return component.invoke(method, this, args);
+            }
+            throw new IllegalArgumentException("no such component");
         }
+        // Not really, but makes the VM stop, which is what we want here, because it means we've
+        // been disconnected / disposed already.
         throw new LimitReachedException();
     }
 
     @Override
     public Object[] invoke(Value value, String method, Object[] args) throws Exception {
-        // Phase 2 stub
-        throw new NoSuchMethodException("value invocation not yet supported (Phase 2)");
+        Callbacks.Callback callback = Callbacks.apply(value).get(method);
+        if (callback == null) throw new NoSuchMethodException();
+        Callback annotation = callback.annotation();
+        if (annotation.direct()) {
+            consumeCallBudget(1.0 / annotation.limit());
+        }
+        Arguments arguments = new ArgumentsImpl(args);
+        return Registry.convert(callback.apply(value, this, arguments));
     }
 
     @Override
@@ -849,7 +870,7 @@ public class Machine extends AbstractManagedEnvironment
         }
     }
 
-    private void addComponent(Component component) {
+    public void addComponent(Component component) {
         synchronized (_components) {
             if (!_components.containsKey(component.address())) {
                 addedComponents.add(component);
@@ -857,7 +878,7 @@ public class Machine extends AbstractManagedEnvironment
         }
     }
 
-    private void removeComponent(Component component) {
+    public void removeComponent(Component component) {
         synchronized (_components) {
             if (_components.containsKey(component.address())) {
                 _components.remove(component.address());

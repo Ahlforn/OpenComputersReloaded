@@ -1,5 +1,5 @@
 {
     "variants": {
-        "": { "model": "opencomputers:printer" }
+        "": { "model": "opencomputers:block/printer" }
     }
 }

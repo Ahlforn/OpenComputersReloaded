@@ -3,8 +3,6 @@ package li.cil.oc.api.internal;
 import li.cil.oc.api.network.EnvironmentHost;
 import li.cil.oc.api.network.Environment;
 import net.minecraft.world.WorldlyContainer;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * This interface allows interaction with robots.
@@ -74,7 +72,6 @@ public interface Robot extends Agent, Environment, EnvironmentHost, Tiered, Worl
      * to know whether to resume animations or not, based on whether the robot
      * is currently powered on or not.
      */
-    @OnlyIn(Dist.CLIENT)
     boolean shouldAnimate();
 }
 

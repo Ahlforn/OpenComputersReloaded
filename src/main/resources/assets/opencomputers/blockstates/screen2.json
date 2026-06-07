@@ -1,12 +1,12 @@
 {
     "variants": {
-        "facing=north,lit=false": { "model": "opencomputers:screen" },
-        "facing=south,lit=false": { "model": "opencomputers:screen", "y": 180 },
-        "facing=west,lit=false":  { "model": "opencomputers:screen", "y": 270 },
-        "facing=east,lit=false":  { "model": "opencomputers:screen", "y": 90 },
-        "facing=north,lit=true":  { "model": "opencomputers:screen_lit" },
-        "facing=south,lit=true":  { "model": "opencomputers:screen_lit", "y": 180 },
-        "facing=west,lit=true":   { "model": "opencomputers:screen_lit", "y": 270 },
-        "facing=east,lit=true":   { "model": "opencomputers:screen_lit", "y": 90 }
+        "facing=north,lit=false": { "model": "opencomputers:block/screen" },
+        "facing=south,lit=false": { "model": "opencomputers:block/screen", "y": 180 },
+        "facing=west,lit=false":  { "model": "opencomputers:block/screen", "y": 270 },
+        "facing=east,lit=false":  { "model": "opencomputers:block/screen", "y": 90 },
+        "facing=north,lit=true":  { "model": "opencomputers:block/screen_lit" },
+        "facing=south,lit=true":  { "model": "opencomputers:block/screen_lit", "y": 180 },
+        "facing=west,lit=true":   { "model": "opencomputers:block/screen_lit", "y": 270 },
+        "facing=east,lit=true":   { "model": "opencomputers:block/screen_lit", "y": 90 }
     }
 }

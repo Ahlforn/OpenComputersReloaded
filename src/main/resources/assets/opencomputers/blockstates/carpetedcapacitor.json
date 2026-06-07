@@ -1,5 +1,5 @@
 {
     "variants": {
-        "": { "model": "opencomputers:carpetedcapacitor" }
+        "": { "model": "opencomputers:block/carpetedcapacitor" }
     }
 }

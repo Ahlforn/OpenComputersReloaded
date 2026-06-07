@@ -1,5 +1,5 @@
 {
     "variants": {
-        "": { "model": "opencomputers:switch" }
+        "": { "model": "opencomputers:block/switch" }
     }
 }

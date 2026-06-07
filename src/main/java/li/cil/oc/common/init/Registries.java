@@ -68,50 +68,50 @@ public final class Registries {
     // -----------------------------------------------------------------------
 
     public static final DeferredBlock<Case> CASE_TIER1 =
-        BLOCKS.register(Constants.BlockName.CaseTier1, () -> new Case(Tier.ONE));
+        BLOCKS.registerBlock(Constants.BlockName.CaseTier1, props -> new Case(Tier.ONE, props), OcBlock::defaultProperties);
     public static final DeferredBlock<Case> CASE_TIER2 =
-        BLOCKS.register(Constants.BlockName.CaseTier2, () -> new Case(Tier.TWO));
+        BLOCKS.registerBlock(Constants.BlockName.CaseTier2, props -> new Case(Tier.TWO, props), OcBlock::defaultProperties);
     public static final DeferredBlock<Case> CASE_TIER3 =
-        BLOCKS.register(Constants.BlockName.CaseTier3, () -> new Case(Tier.THREE));
+        BLOCKS.registerBlock(Constants.BlockName.CaseTier3, props -> new Case(Tier.THREE, props), OcBlock::defaultProperties);
     public static final DeferredBlock<Case> CASE_CREATIVE =
-        BLOCKS.register(Constants.BlockName.CaseCreative, () -> new Case(Tier.FOUR));
+        BLOCKS.registerBlock(Constants.BlockName.CaseCreative, props -> new Case(Tier.FOUR, props), OcBlock::defaultProperties);
 
     public static final DeferredBlock<Screen> SCREEN_TIER1 =
-        BLOCKS.register(Constants.BlockName.ScreenTier1, () -> new Screen(Tier.ONE));
+        BLOCKS.registerBlock(Constants.BlockName.ScreenTier1, props -> new Screen(Tier.ONE, props), OcBlock::defaultProperties);
     public static final DeferredBlock<Screen> SCREEN_TIER2 =
-        BLOCKS.register(Constants.BlockName.ScreenTier2, () -> new Screen(Tier.TWO));
+        BLOCKS.registerBlock(Constants.BlockName.ScreenTier2, props -> new Screen(Tier.TWO, props), OcBlock::defaultProperties);
     public static final DeferredBlock<Screen> SCREEN_TIER3 =
-        BLOCKS.register(Constants.BlockName.ScreenTier3, () -> new Screen(Tier.THREE));
+        BLOCKS.registerBlock(Constants.BlockName.ScreenTier3, props -> new Screen(Tier.THREE, props), OcBlock::defaultProperties);
 
     public static final DeferredBlock<Hologram> HOLOGRAM_TIER1 =
-        BLOCKS.register(Constants.BlockName.HologramTier1, () -> new Hologram(Tier.ONE));
+        BLOCKS.registerBlock(Constants.BlockName.HologramTier1, props -> new Hologram(Tier.ONE, props), OcBlock::defaultProperties);
     public static final DeferredBlock<Hologram> HOLOGRAM_TIER2 =
-        BLOCKS.register(Constants.BlockName.HologramTier2, () -> new Hologram(Tier.TWO));
+        BLOCKS.registerBlock(Constants.BlockName.HologramTier2, props -> new Hologram(Tier.TWO, props), OcBlock::defaultProperties);
 
-    public static final DeferredBlock<Adapter>          ADAPTER          = BLOCKS.register(Constants.BlockName.Adapter,          Adapter::new);
-    public static final DeferredBlock<Assembler>        ASSEMBLER        = BLOCKS.register(Constants.BlockName.Assembler,        Assembler::new);
-    public static final DeferredBlock<Cable>            CABLE            = BLOCKS.register(Constants.BlockName.Cable,            Cable::new);
-    public static final DeferredBlock<Capacitor>        CAPACITOR        = BLOCKS.register(Constants.BlockName.Capacitor,        Capacitor::new);
-    public static final DeferredBlock<CarpetedCapacitor> CARPETED_CAPACITOR = BLOCKS.register(Constants.BlockName.CarpetedCapacitor, CarpetedCapacitor::new);
-    public static final DeferredBlock<Charger>          CHARGER          = BLOCKS.register(Constants.BlockName.Charger,          Charger::new);
-    public static final DeferredBlock<Disassembler>     DISASSEMBLER     = BLOCKS.register(Constants.BlockName.Disassembler,     Disassembler::new);
-    public static final DeferredBlock<DiskDrive>        DISK_DRIVE       = BLOCKS.register(Constants.BlockName.DiskDrive,        DiskDrive::new);
-    public static final DeferredBlock<Geolyzer>         GEOLYZER         = BLOCKS.register(Constants.BlockName.Geolyzer,         Geolyzer::new);
-    public static final DeferredBlock<Keyboard>         KEYBOARD         = BLOCKS.register(Constants.BlockName.Keyboard,         Keyboard::new);
-    public static final DeferredBlock<Microcontroller>  MICROCONTROLLER  = BLOCKS.register(Constants.BlockName.Microcontroller,  Microcontroller::new);
-    public static final DeferredBlock<MotionSensor>     MOTION_SENSOR    = BLOCKS.register(Constants.BlockName.MotionSensor,     MotionSensor::new);
-    public static final DeferredBlock<NetSplitter>      NET_SPLITTER     = BLOCKS.register(Constants.BlockName.NetSplitter,      NetSplitter::new);
-    public static final DeferredBlock<PowerConverter>   POWER_CONVERTER  = BLOCKS.register(Constants.BlockName.PowerConverter,   PowerConverter::new);
-    public static final DeferredBlock<PowerDistributor> POWER_DISTRIBUTOR = BLOCKS.register(Constants.BlockName.PowerDistributor, PowerDistributor::new);
-    public static final DeferredBlock<Print>            PRINT            = BLOCKS.register(Constants.BlockName.Print,            Print::new);
-    public static final DeferredBlock<Printer>          PRINTER          = BLOCKS.register(Constants.BlockName.Printer,          Printer::new);
-    public static final DeferredBlock<Rack>             RACK             = BLOCKS.register(Constants.BlockName.Rack,             Rack::new);
-    public static final DeferredBlock<Raid>             RAID             = BLOCKS.register(Constants.BlockName.Raid,             Raid::new);
-    public static final DeferredBlock<Redstone>         REDSTONE         = BLOCKS.register(Constants.BlockName.Redstone,         Redstone::new);
-    public static final DeferredBlock<Relay>            RELAY            = BLOCKS.register(Constants.BlockName.Relay,            Relay::new);
-    public static final DeferredBlock<Robot>            ROBOT            = BLOCKS.register(Constants.BlockName.Robot,            Robot::new);
-    public static final DeferredBlock<Transposer>       TRANSPOSER       = BLOCKS.register(Constants.BlockName.Transposer,       Transposer::new);
-    public static final DeferredBlock<Waypoint>         WAYPOINT         = BLOCKS.register(Constants.BlockName.Waypoint,         Waypoint::new);
+    public static final DeferredBlock<Adapter>          ADAPTER          = BLOCKS.registerBlock(Constants.BlockName.Adapter,          Adapter::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<Assembler>        ASSEMBLER        = BLOCKS.registerBlock(Constants.BlockName.Assembler,        Assembler::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<Cable>            CABLE            = BLOCKS.registerBlock(Constants.BlockName.Cable,            Cable::new, Cable::defaultProperties);
+    public static final DeferredBlock<Capacitor>        CAPACITOR        = BLOCKS.registerBlock(Constants.BlockName.Capacitor,        Capacitor::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<CarpetedCapacitor> CARPETED_CAPACITOR = BLOCKS.registerBlock(Constants.BlockName.CarpetedCapacitor, CarpetedCapacitor::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<Charger>          CHARGER          = BLOCKS.registerBlock(Constants.BlockName.Charger,          Charger::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<Disassembler>     DISASSEMBLER     = BLOCKS.registerBlock(Constants.BlockName.Disassembler,     Disassembler::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<DiskDrive>        DISK_DRIVE       = BLOCKS.registerBlock(Constants.BlockName.DiskDrive,        DiskDrive::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<Geolyzer>         GEOLYZER         = BLOCKS.registerBlock(Constants.BlockName.Geolyzer,         Geolyzer::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<Keyboard>         KEYBOARD         = BLOCKS.registerBlock(Constants.BlockName.Keyboard,         Keyboard::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<Microcontroller>  MICROCONTROLLER  = BLOCKS.registerBlock(Constants.BlockName.Microcontroller,  Microcontroller::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<MotionSensor>     MOTION_SENSOR    = BLOCKS.registerBlock(Constants.BlockName.MotionSensor,     MotionSensor::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<NetSplitter>      NET_SPLITTER     = BLOCKS.registerBlock(Constants.BlockName.NetSplitter,      NetSplitter::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<PowerConverter>   POWER_CONVERTER  = BLOCKS.registerBlock(Constants.BlockName.PowerConverter,   PowerConverter::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<PowerDistributor> POWER_DISTRIBUTOR = BLOCKS.registerBlock(Constants.BlockName.PowerDistributor, PowerDistributor::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<Print>            PRINT            = BLOCKS.registerBlock(Constants.BlockName.Print,            Print::new, Print::defaultProperties);
+    public static final DeferredBlock<Printer>          PRINTER          = BLOCKS.registerBlock(Constants.BlockName.Printer,          Printer::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<Rack>             RACK             = BLOCKS.registerBlock(Constants.BlockName.Rack,             Rack::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<Raid>             RAID             = BLOCKS.registerBlock(Constants.BlockName.Raid,             Raid::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<Redstone>         REDSTONE         = BLOCKS.registerBlock(Constants.BlockName.Redstone,         Redstone::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<Relay>            RELAY            = BLOCKS.registerBlock(Constants.BlockName.Relay,            Relay::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<Robot>            ROBOT            = BLOCKS.registerBlock(Constants.BlockName.Robot,            Robot::new, Robot::defaultProperties);
+    public static final DeferredBlock<Transposer>       TRANSPOSER       = BLOCKS.registerBlock(Constants.BlockName.Transposer,       Transposer::new, OcBlock::defaultProperties);
+    public static final DeferredBlock<Waypoint>         WAYPOINT         = BLOCKS.registerBlock(Constants.BlockName.Waypoint,         Waypoint::new, OcBlock::defaultProperties);
 
     // -----------------------------------------------------------------------
     // Block items — auto-generated from every registered block
@@ -338,6 +338,12 @@ public final class Registries {
                 (pos, state) -> new DiskDriveBlockEntity(pos, state),
                 DISK_DRIVE.get()));
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<WaypointBlockEntity>> WAYPOINT_BE =
+        BLOCK_ENTITY_TYPES.register(Constants.BlockName.Waypoint,
+            () -> new BlockEntityType<>(
+                (pos, state) -> new WaypointBlockEntity(pos, state),
+                WAYPOINT.get()));
+
     // -----------------------------------------------------------------------
     // Menu types (Phase 6)
     // -----------------------------------------------------------------------
@@ -384,9 +390,8 @@ public final class Registries {
             CreativeModeTab.builder()
                 .title(net.minecraft.network.chat.Component.translatable("itemGroup.opencomputers"))
                 .icon(() -> new net.minecraft.world.item.ItemStack(CASE_TIER1.get()))
-                .displayItems((params, output) -> {
-                    // Phase 6: populate tab contents via BuildCreativeModeTabContentsEvent
-                })
+                .displayItems((params, output) ->
+                    ITEMS.getEntries().forEach(h -> output.accept(h.get())))
                 .build()
         );
 
@@ -408,12 +413,12 @@ public final class Registries {
     // -----------------------------------------------------------------------
 
     private static <B extends Block> DeferredItem<BlockItem> blockItem(DeferredBlock<B> block) {
-        return ITEMS.register(block.getId().getPath(),
-            () -> new BlockItem(block.get(), new Item.Properties()));
+        return ITEMS.registerItem(block.getId().getPath(),
+            props -> new BlockItem(block.get(), props));
     }
 
     private static DeferredItem<Item> simpleItem(String id) {
-        return ITEMS.register(id, () -> new Item(new Item.Properties()));
+        return ITEMS.registerSimpleItem(id);
     }
 
     private Registries() {}

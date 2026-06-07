@@ -34,7 +34,7 @@ public class NetworkActivityEvent extends Event {
     /**
      * Constructor for tile entity hosted network cards.
      *
-     * @param tileEntity the tile entity hosting the network card.
+     * @param blockEntity the block entity hosting the network card.
      * @param data       the additional data.
      */
     protected NetworkActivityEvent(BlockEntity blockEntity, CompoundTag data) {
@@ -135,7 +135,7 @@ public class NetworkActivityEvent extends Event {
         /**
          * Constructor for tile entity hosted network card.
          *
-         * @param tileEntity the tile entity hosting the network card.
+         * @param blockEntity the block entity hosting the network card.
          * @param data       the additional data.
          */
         public Client(BlockEntity blockEntity, CompoundTag data) {

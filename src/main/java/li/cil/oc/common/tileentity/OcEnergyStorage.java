@@ -12,7 +12,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
  * Bridges NeoForge Forge Energy (RF) to the OC-internal energy buffer held
  * by a {@link CaseBlockEntity}'s machine {@link Connector} node.
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "removal"})
 public class OcEnergyStorage implements IEnergyStorage, EnergyHandler {
 
     private final CaseBlockEntity be;

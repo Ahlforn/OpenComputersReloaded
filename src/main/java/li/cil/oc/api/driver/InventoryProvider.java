@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
  * the inventory controller upgrade, for example.
  * <br>
  * Implementations returned by {@link #getInventory} should save changes
- * back to the item stack when {@link IInventory#markDirty()} is called.
+ * back to the item stack when {@link net.minecraft.world.Container#setChanged()} is called.
  * Return <tt>null</tt> if the specified stack is not supported.
  */
 public interface InventoryProvider {

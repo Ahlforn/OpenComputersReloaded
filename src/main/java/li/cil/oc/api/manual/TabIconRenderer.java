@@ -1,7 +1,5 @@
 package li.cil.oc.api.manual;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Allows defining a renderer for a manual tab.
@@ -11,8 +9,8 @@ import net.neoforged.api.distmarker.OnlyIn;
  * multiple tab renderer instances.
  * <br>
  *
- * @see li.cil.oc.api.prefab.ItemStackTabIconRenderer
- * @see li.cil.oc.api.prefab.TextureTabIconRenderer
+ * Prefab implementations: {@code ItemStackTabIconRenderer} and
+ * {@code TextureTabIconRenderer} in {@code li.cil.oc.api.prefab}.
  */
 public interface TabIconRenderer {
     /**
@@ -21,6 +19,5 @@ public interface TabIconRenderer {
      * This should render something in a 16x16 area. The OpenGL state has been
      * adjusted so that drawing starts at (0,0,0), and should go to (16,16,0).
      */
-    @OnlyIn(Dist.CLIENT)
     void render();
 }

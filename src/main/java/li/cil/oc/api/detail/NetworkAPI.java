@@ -23,7 +23,7 @@ public interface NetworkAPI {
      * respective for each side is used when connecting, and each side's node
      * is added to its own new network, if necessary.
      *
-     * @param tileEntity the tile entity to initialize.
+     * @param blockEntity the block entity to initialize.
      */
     void joinOrCreateNetwork(BlockEntity blockEntity);
 

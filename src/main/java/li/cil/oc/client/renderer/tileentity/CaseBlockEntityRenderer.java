@@ -7,10 +7,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
 public class CaseBlockEntityRenderer implements BlockEntityRenderer<CaseBlockEntity, BlockEntityRenderState> {
 
     public CaseBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {}

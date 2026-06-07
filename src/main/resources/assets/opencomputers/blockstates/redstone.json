@@ -1,5 +1,5 @@
 {
     "variants": {
-        "": { "model": "opencomputers:redstone" }
+        "": { "model": "opencomputers:block/redstone" }
     }
 }

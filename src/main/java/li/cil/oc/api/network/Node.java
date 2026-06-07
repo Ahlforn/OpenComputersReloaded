@@ -17,9 +17,9 @@ import li.cil.oc.api.Persistable;
  * All other kinds of nodes you may come up with will also have to be
  * handled manually.
  * <br>
- * Items have to be handled by a corresponding {@link DriverItem}.
+ * Items have to be handled by a corresponding {@link li.cil.oc.api.driver.DriverItem}.
  * Existing blocks may be interfaced with the adapter block if a
- * {@link DriverBlock} exists that supports the block.
+ * {@link li.cil.oc.api.driver.DriverBlock} exists that supports the block.
  * <br>
  * <em>Important</em>: like the <tt>Network</tt> interface you must not create
  * your own implementations of this interface. Use the factory methods in the

@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -23,8 +24,8 @@ public class Screen extends OcBlock implements EntityBlock {
 
     private final int tier;
 
-    public Screen(int tier) {
-        super();
+    public Screen(int tier, BlockBehaviour.Properties props) {
+        super(props);
         this.tier = tier;
         registerDefaultState(stateDefinition.any()
             .setValue(FACING, Direction.NORTH)

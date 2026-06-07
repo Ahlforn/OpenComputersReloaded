@@ -13,10 +13,6 @@ import net.minecraft.world.level.material.MapColor;
  */
 public class OcBlock extends Block {
 
-    public OcBlock() {
-        this(defaultProperties());
-    }
-
     public OcBlock(BlockBehaviour.Properties properties) {
         super(properties);
     }
