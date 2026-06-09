@@ -6,6 +6,9 @@ import li.cil.oc.api.network.Component;
 import li.cil.oc.api.network.Environment;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
+import li.cil.oc.api.network.ManagedEnvironment;
+import li.cil.oc.api.network.ManagedPeripheral;
+import li.cil.oc.server.driver.CompoundBlockEnvironment;
 import li.cil.oc.server.driver.Registry;
 import li.cil.oc.server.machine.ArgumentsImpl;
 import li.cil.oc.server.machine.Callbacks;
@@ -55,7 +58,30 @@ final class ComponentSupport {
     Object[] invoke(String method, Context context, Object... arguments) throws Exception {
         Callbacks.Callback callback = callbacks().get(method);
         if (callback == null) throw new NoSuchMethodException();
-        return Registry.convert(callback.apply(host, context, new ArgumentsImpl(arguments)));
+        Object dispatchTarget = resolveHost(method, callback);
+        return Registry.convert(callback.apply(dispatchTarget, context, new ArgumentsImpl(arguments)));
+    }
+
+    /** For CompoundBlockEnvironment, route to the sub-environment that declares the callback. */
+    private Object resolveHost(String method, Callbacks.Callback callback) {
+        if (!(host instanceof CompoundBlockEnvironment multi)) return host;
+        if (callback instanceof Callbacks.ComponentCallback cc) {
+            Class<?> declaringClass = cc.method().getDeclaringClass();
+            for (Object[] pair : multi.environments) {
+                ManagedEnvironment env = (ManagedEnvironment) pair[1];
+                if (env.getClass() == declaringClass) return env;
+            }
+        } else if (callback instanceof Callbacks.PeripheralCallback pc) {
+            for (Object[] pair : multi.environments) {
+                ManagedEnvironment env = (ManagedEnvironment) pair[1];
+                if (env instanceof ManagedPeripheral mp) {
+                    for (String m : mp.methods()) {
+                        if (m.equals(pc.name())) return env;
+                    }
+                }
+            }
+        }
+        return host;
     }
 
     // ----------------------------------------------------------------------- //

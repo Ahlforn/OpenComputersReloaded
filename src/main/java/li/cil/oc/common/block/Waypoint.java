@@ -4,7 +4,10 @@ import li.cil.oc.common.init.Registries;
 import li.cil.oc.common.tileentity.WaypointBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -29,6 +32,18 @@ public class Waypoint extends OcBlock implements EntityBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
         builder.add(PITCH, YAW);
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
+            Player player, BlockHitResult hit) {
+        if (!level.isClientSide()) return InteractionResult.SUCCESS;
+        var be = level.getBlockEntity(pos);
+        if (be instanceof WaypointBlockEntity wbe) {
+            net.minecraft.client.Minecraft.getInstance()
+                .setScreen(new li.cil.oc.client.gui.WaypointScreen(wbe));
+        }
+        return InteractionResult.CONSUME;
     }
 
     @Override

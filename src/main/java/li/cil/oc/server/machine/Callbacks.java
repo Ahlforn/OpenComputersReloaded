@@ -177,6 +177,8 @@ public final class Callbacks {
     public static final class ComponentCallback extends Callback {
         private final Method method;
 
+        public Method method() { return method; }
+
         public ComponentCallback(Method method, li.cil.oc.api.machine.Callback annotation) {
             super(annotation);
             method.setAccessible(true);
@@ -199,6 +201,8 @@ public final class Callbacks {
     /** A dynamically provided method from a {@link ManagedPeripheral}. */
     public static final class PeripheralCallback extends Callback {
         private final String name;
+
+        public String name() { return name; }
 
         public PeripheralCallback(String name) {
             super(new PeripheralAnnotation(name));

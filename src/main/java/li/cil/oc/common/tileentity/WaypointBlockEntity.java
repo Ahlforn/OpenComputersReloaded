@@ -28,7 +28,7 @@ import net.minecraft.world.phys.Vec3;
 public class WaypointBlockEntity extends TileEntityEnvironment {
 
     private static final String LABEL_TAG = Settings.namespace + "label";
-    private static final int MAX_LABEL_LENGTH = 32;
+    public static final int MAX_LABEL_LENGTH = 32;
 
     public String label = "";
 

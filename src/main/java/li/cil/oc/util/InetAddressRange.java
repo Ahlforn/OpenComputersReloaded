@@ -1,8 +1,6 @@
 
 package li.cil.oc.util;
 
-import com.google.common.net.InetAddresses;
-
 import java.net.InetAddress;
 
 // Originally by SquidDev
@@ -38,8 +36,8 @@ public final class InetAddressRange {
 
         InetAddress address;
         try {
-            address = InetAddresses.forString(addressStr);
-        } catch (IllegalArgumentException e) {
+            address = InetAddress.getByName(addressStr);
+        } catch (IllegalArgumentException | java.net.UnknownHostException e) {
             throw new IllegalArgumentException(String.format("Malformed address range entry '%s': Cannot extract IP address from '%s'.",
                     addressStr + '/' + prefixSizeStr, addressStr));
         }

@@ -125,8 +125,7 @@ sourceSets {
             exclude 'li/cil/oc/common/asm/template/**'
             exclude 'li/cil/oc/integration/**'
             exclude 'li/cil/oc/util/OCObfuscationReflectionHelper.java'
-            exclude 'li/cil/oc/util/SideTracker.java'
-            exclude 'com/typesafe/config/impl/OpenComputersConfigCommentManipulationHook.java'
+                exclude 'com/typesafe/config/impl/OpenComputersConfigCommentManipulationHook.java'
         }
     }
 }

@@ -1,6 +1,5 @@
 package li.cil.oc.util;
 
-import com.google.common.net.InetAddresses;
 import li.cil.oc.OpenComputersMod;
 
 import java.net.Inet4Address;
@@ -88,8 +87,7 @@ public class InternetFilteringRule {
                             predicates.add((addr, host) -> addr instanceof Inet6Address);
                         case "ipv4-embedded-ipv6" ->
                             predicates.add((addr, host) ->
-                                addr instanceof Inet6Address &&
-                                InetAddresses.hasEmbeddedIPv4ClientAddress((Inet6Address) addr));
+                                addr instanceof Inet6Address ipv6 && isEmbeddedIPv4(ipv6));
                         case "domain" -> {
                             String domain = filterParts[1];
                             InetAddress[] addresses;
@@ -113,7 +111,9 @@ public class InternetFilteringRule {
                                 InetAddressRange range = InetAddressRange.parse(ipParts[0], ipParts[1]);
                                 predicates.add((addr, host) -> range.matches(addr));
                             } else {
-                                InetAddress specific = InetAddresses.forString(ipParts[0]);
+                                InetAddress specific;
+                        try { specific = InetAddress.getByName(ipParts[0]); }
+                        catch (java.net.UnknownHostException e) { throw new IllegalArgumentException("Invalid IP: " + ipParts[0]); }
                                 predicates.add((addr, host) -> specific.equals(addr));
                             }
                             predicates.add((addr, host) ->
@@ -148,5 +148,14 @@ public class InternetFilteringRule {
 
     public Optional<Boolean> apply(InetAddress address, String host) {
         return validator.apply(address, host);
+    }
+
+    private static boolean isEmbeddedIPv4(Inet6Address addr) {
+        byte[] b = addr.getAddress();
+        // IPv4-mapped: ::ffff:x.x.x.x — bytes 10-11 are 0xFF
+        if (b[10] == (byte)0xff && b[11] == (byte)0xff) return true;
+        // IPv4-compatible: ::x.x.x.x — bytes 0-11 all zero, bytes 12-15 non-zero
+        for (int i = 0; i < 12; i++) if (b[i] != 0) return false;
+        return b[12] != 0 || b[13] != 0 || b[14] != 0 || b[15] != 0;
     }
 }

@@ -1,11 +1,18 @@
 package li.cil.oc.common;
 
+import li.cil.oc.common.tileentity.WaypointBlockEntity;
+import li.cil.oc.common.PacketBuilder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -68,7 +75,7 @@ public class PacketHandler {
     private void dispatchType(PacketType type, DataInputStream in, IPayloadContext context) {
         switch (type) {
             case ComputerState -> handleComputerState(in, context);
-            // TODO Phase 3b+: add cases for all other packet types as they are ported.
+            case WaypointLabel -> handleWaypointLabel(in, context);
             default -> LOGGER.debug("Unhandled packet type {} (not yet ported).", type);
         }
     }
@@ -80,5 +87,38 @@ public class PacketHandler {
     private void handleComputerState(DataInputStream in, IPayloadContext context) {
         // Phase 3b: read dim/pos/isRunning/hasErrored from stream, update
         // CaseBlockEntity on client.  Stub until BE sync is wired up.
+    }
+
+    private void handleWaypointLabel(DataInputStream in, IPayloadContext context) {
+        try {
+            long posLong = in.readLong();
+            String raw = in.readUTF();
+            String label = raw.substring(0, Math.min(WaypointBlockEntity.MAX_LABEL_LENGTH, raw.length()));
+            Player player = context.player();
+            var level = player.level();
+            BlockPos pos = BlockPos.of(posLong);
+            BlockEntity be = level.getBlockEntity(pos);
+            if (!(be instanceof WaypointBlockEntity waypoint)) return;
+
+            if (context.flow() == PacketFlow.SERVERBOUND) {
+                // Server: validate distance, update, rebroadcast.
+                if (player.blockPosition().distSqr(pos) > 64.0 * 64.0) return;
+                waypoint.label = label;
+                waypoint.setChanged();
+                try {
+                    PacketBuilder pb = PacketBuilder.simple(PacketType.WaypointLabel);
+                    pb.writeLong(posLong);
+                    pb.writeUTF(label);
+                    pb.sendToPlayersNearPos(level, pos);
+                } catch (IOException ex) {
+                    LOGGER.warn("Failed to rebroadcast WaypointLabel", ex);
+                }
+            } else {
+                // Client: apply the authoritative label from server.
+                waypoint.label = label;
+            }
+        } catch (IOException e) {
+            LOGGER.warn("Failed to read WaypointLabel packet", e);
+        }
     }
 }

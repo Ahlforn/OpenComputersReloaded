@@ -5,7 +5,6 @@ import li.cil.oc.api.network.Environment;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -25,18 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class NetworkTest {
 
-    /**
-     * Energy paths call {@link Settings#get()}. Settings reads HOCON config that doesn't resolve
-     * cleanly in a bare unit-test JVM, so load it best-effort and skip the (single) energy test if
-     * unavailable — energy pooling is also exercised by the runClient smoke test.
-     */
     private static void requireSettings() {
         if (Settings.get() != null) return;
-        try {
-            Settings.load(new File("build/tmp/network-test-settings.conf"));
-        } catch (Throwable t) {
-            Assumptions.abort("Settings could not be initialized in the unit-test JVM: " + t);
-        }
+        Settings.load(new File("build/tmp/network-test-settings.conf"));
     }
 
     /** Recording host: remembers which other hosts it was told connected/disconnected. */

@@ -171,40 +171,39 @@ public class Settings {
 
     // robot.xp
     public final double baseXpToLevel;
-    public final double xpCostPerTier;
-    public final double baseXpForAction;
-    public final double upgradeXpCostMultiplier;
+    public final double constantXpGrowth;
+    public final double exponentialXpGrowth;
+    public final double robotActionXp;
+    public final double robotExhaustionXpRate;
+    public final double robotOreXpRate;
+    public final double bufferPerLevel;
+    public final double toolEfficiencyPerLevel;
+    public final double harvestSpeedBoostPerLevel;
 
     // robot.delays
-    public final double[] moveDelay;
-    public final double[] turnDelay;
-    public final double[] swingDelay;
-    public final double[] useDelay;
-    public final double[] placeDelay;
-    public final double[] dropDelay;
-    public final double[] suckDelay;
-    public final double[] harvestRatio;
+    public final double moveDelay;
+    public final double turnDelay;
+    public final double swingDelay;
+    public final double useDelay;
+    public final double placeDelay;
+    public final double dropDelay;
+    public final double suckDelay;
+    public final double harvestRatio;
 
     // power
     public final double[] powerRatioFromBatteryBlock = new double[0]; // IC2, TE, etc. — unused in Phase 1 → unused in Phase 1
     public final double[] costPerOperation;           // named by operation
 
     // filesystem
-    public final int maxHandles;
-    public final int maxReadBuffer;
-    public final double hddTimeCost;
-    public final double hddBytesCost;
-    public final double ssdTimeCost;
-    public final double ssdBytesCost;
-    public final double floppyTimeCost;
-    public final double floppyBytesCost;
+    public final int fileCost;
+    public final boolean bufferChanges;
     public final int[] hddSizes;      // 3 tiers
-    public final double[] hddScales;  // 3 tiers
-    public final int[] ssdSizes;      // 3 tiers
-    public final double[] ssdScales;  // 3 tiers
+    public final int[] hddPlatterCounts; // 3 tiers
     public final int floppySize;
     public final int tmpSize;
-    public final int maxFloppy;
+    public final int maxHandles;
+    public final int maxReadBuffer;
+    public final int sectorSeekThreshold;
     public final double sectorSeekTime;
 
     // internet
@@ -312,33 +311,51 @@ public class Settings {
     public final int tickFrequency;
     public final double bufferComputer;
     public final double computerCost;
+    public final double microcontrollerCost;
     public final double robotCost;
+    public final double droneCost;
     public final double sleepCostFactor;
+    public final double screenCost;
+    public final double hologramCost;
     public final double hddReadCost;
     public final double hddWriteCost;
-    public final double hddSeekCost;
-    public final double screenCostFactor;
+    public final double gpuSetCost;
     public final double gpuFillCost;
     public final double gpuClearCost;
     public final double gpuCopyCost;
-    public final double gpuSetCost;
-    public final double gpuBitbltCost;
     public final double robotTurnCost;
     public final double robotMoveCost;
     public final double robotExhaustionCost;
-    public final double assemblerCost;
-    public final double chargeCostFactor;
-    public final double printerCost;
-    public final double nanomachineCost;
-    public final double terminalServerCost;
+    public final double[] wirelessCostPerRange;
+    public final double abstractBusPacketCost;
+    public final double geolyzerScanCost;
+    public final double robotBaseCost;
+    public final double robotComplexityCost;
+    public final double microcontrollerBaseCost;
+    public final double microcontrollerComplexityCost;
+    public final double tabletBaseCost;
+    public final double tabletComplexityCost;
+    public final double droneBaseCost;
+    public final double droneComplexityCost;
+    public final double disassemblerItemCost;
+    public final double chunkloaderCost;
+    public final double pistonCost;
+    public final double eepromWriteCost;
+    public final double printCost;
+    public final double hoverBootJump;
+    public final double hoverBootAbsorb;
+    public final double hoverBootMove;
     public final double dataCardTrivial;
+    public final double dataCardTrivialByte;
     public final double dataCardSimple;
+    public final double dataCardSimpleByte;
     public final double dataCardComplex;
+    public final double dataCardComplexByte;
     public final double dataCardAsymmetric;
     public final double transposerCost;
-    public final double generatorEfficiency;
-    public final double solarGeneratorEfficiency;
-    public final double abstractBusPacketCost;
+    public final double nanomachineCost;
+    public final double nanomachineReconfigureCost;
+    public final double mfuCost;
 
     // energy conversion ratios (OC-internal = external / valueInternal)
     public final double ratioForgeEnergy;
@@ -466,44 +483,41 @@ public class Settings {
         }
 
         // robot.xp
-        baseXpToLevel = config.getDouble("robot.xp.baseXpToLevel");
-        xpCostPerTier = config.getDouble("robot.xp.xpCostPerTier");
-        baseXpForAction = config.getDouble("robot.xp.baseXpForAction");
-        upgradeXpCostMultiplier = config.getDouble("robot.xp.upgradeXpCostMultiplier");
+        baseXpToLevel = Math.max(0, config.getDouble("robot.xp.baseValue"));
+        constantXpGrowth = Math.max(1, config.getDouble("robot.xp.constantGrowth"));
+        exponentialXpGrowth = Math.max(1, config.getDouble("robot.xp.exponentialGrowth"));
+        robotActionXp = Math.max(0, config.getDouble("robot.xp.actionXp"));
+        robotExhaustionXpRate = Math.max(0, config.getDouble("robot.xp.exhaustionXpRate"));
+        robotOreXpRate = Math.max(0, config.getDouble("robot.xp.oreXpRate"));
+        bufferPerLevel = Math.max(0, config.getDouble("robot.xp.bufferPerLevel"));
+        toolEfficiencyPerLevel = Math.max(0, config.getDouble("robot.xp.toolEfficiencyPerLevel"));
+        harvestSpeedBoostPerLevel = Math.max(0, config.getDouble("robot.xp.harvestSpeedBoostPerLevel"));
 
         // robot.delays
-        moveDelay = toDoubleArray(config.getDoubleList("robot.delays.move"), 6, "move delay");
-        turnDelay = toDoubleArray(config.getDoubleList("robot.delays.turn"), 6, "turn delay");
-        swingDelay = toDoubleArray(config.getDoubleList("robot.delays.swing"), 6, "swing delay");
-        useDelay = toDoubleArray(config.getDoubleList("robot.delays.use"), 6, "use delay");
-        placeDelay = toDoubleArray(config.getDoubleList("robot.delays.place"), 6, "place delay");
-        dropDelay = toDoubleArray(config.getDoubleList("robot.delays.drop"), 6, "drop delay");
-        suckDelay = toDoubleArray(config.getDoubleList("robot.delays.suck"), 6, "suck delay");
-        harvestRatio = toDoubleArray(config.getDoubleList("robot.delays.harvestRatio"), 6, "harvest ratio");
+        turnDelay = Math.max(0.05, config.getDouble("robot.delays.turn") - 0.06);
+        moveDelay = Math.max(0.05, config.getDouble("robot.delays.move") - 0.06);
+        swingDelay = Math.max(0, config.getDouble("robot.delays.swing") - 0.06);
+        useDelay = Math.max(0, config.getDouble("robot.delays.use") - 0.06);
+        placeDelay = Math.max(0, config.getDouble("robot.delays.place") - 0.06);
+        dropDelay = Math.max(0, config.getDouble("robot.delays.drop") - 0.06);
+        suckDelay = Math.max(0, config.getDouble("robot.delays.suck") - 0.06);
+        harvestRatio = Math.max(0, config.getDouble("robot.delays.harvestRatio"));
 
         // power – just load the cost table as doubles from config
         costPerOperation = new double[0]; // placeholder – individual costs loaded on demand
 
         // filesystem
-        maxHandles = Math.max(0, config.getInt("filesystem.maxHandles"));
-        maxReadBuffer = Math.max(0, config.getInt("filesystem.maxReadBuffer"));
-        hddTimeCost = config.getDouble("filesystem.hddTimeCost");
-        hddBytesCost = config.getDouble("filesystem.hddBytesCost");
-        ssdTimeCost = config.getDouble("filesystem.ssdTimeCost");
-        ssdBytesCost = config.getDouble("filesystem.ssdBytesCost");
-        floppyTimeCost = config.getDouble("filesystem.floppyTimeCost");
-        floppyBytesCost = config.getDouble("filesystem.floppyBytesCost");
+        fileCost = Math.max(0, config.getInt("filesystem.fileCost"));
+        bufferChanges = config.getBoolean("filesystem.bufferChanges");
         List<Integer> hddS = config.getIntList("filesystem.hddSizes");
         hddSizes = hddS.size() == 3 ? new int[]{hddS.get(0), hddS.get(1), hddS.get(2)} : new int[]{1024, 2048, 4096};
-        List<Double> hddSc = config.getDoubleList("filesystem.hddScales");
-        hddScales = hddSc.size() == 3 ? new double[]{hddSc.get(0), hddSc.get(1), hddSc.get(2)} : new double[]{1, 1, 1};
-        List<Integer> ssdS = config.getIntList("filesystem.ssdSizes");
-        ssdSizes = ssdS.size() == 3 ? new int[]{ssdS.get(0), ssdS.get(1), ssdS.get(2)} : new int[]{512, 1024, 2048};
-        List<Double> ssdSc = config.getDoubleList("filesystem.ssdScales");
-        ssdScales = ssdSc.size() == 3 ? new double[]{ssdSc.get(0), ssdSc.get(1), ssdSc.get(2)} : new double[]{1, 1, 1};
+        List<Integer> hddP = config.getIntList("filesystem.hddPlatterCounts");
+        hddPlatterCounts = hddP.size() == 3 ? new int[]{hddP.get(0), hddP.get(1), hddP.get(2)} : new int[]{2, 4, 6};
         floppySize = Math.max(0, config.getInt("filesystem.floppySize"));
         tmpSize = Math.max(0, config.getInt("filesystem.tmpSize"));
-        maxFloppy = Math.max(0, config.getInt("filesystem.maxFloppy"));
+        maxHandles = Math.max(0, config.getInt("filesystem.maxHandles"));
+        maxReadBuffer = Math.max(0, config.getInt("filesystem.maxReadBuffer"));
+        sectorSeekThreshold = config.getInt("filesystem.sectorSeekThreshold");
         sectorSeekTime = config.getDouble("filesystem.sectorSeekTime");
 
         // internet
@@ -625,33 +639,54 @@ public class Settings {
         tickFrequency = Math.max(1, config.getInt("power.tickFrequency"));
         bufferComputer = Math.max(0, config.getDouble("power.buffer.computer"));
         computerCost = Math.max(0, config.getDouble("power.cost.computer"));
+        microcontrollerCost = Math.max(0, config.getDouble("power.cost.microcontroller"));
         robotCost = Math.max(0, config.getDouble("power.cost.robot"));
+        droneCost = Math.max(0, config.getDouble("power.cost.drone"));
         sleepCostFactor = Math.max(0, config.getDouble("power.cost.sleepFactor"));
-        hddReadCost = Math.max(0, config.getDouble("power.cost.hddRead"));
-        hddWriteCost = Math.max(0, config.getDouble("power.cost.hddWrite"));
-        hddSeekCost = Math.max(0, config.getDouble("power.cost.hddSeek"));
-        screenCostFactor = Math.max(0, config.getDouble("power.cost.screenFactor"));
-        gpuFillCost = Math.max(0, config.getDouble("power.cost.gpuFill"));
-        gpuClearCost = Math.max(0, config.getDouble("power.cost.gpuClear"));
-        gpuCopyCost = Math.max(0, config.getDouble("power.cost.gpuCopy"));
-        gpuSetCost = Math.max(0, config.getDouble("power.cost.gpuSet"));
-        gpuBitbltCost = Math.max(0, config.getDouble("power.cost.gpuBitblt"));
+        screenCost = Math.max(0, config.getDouble("power.cost.screen"));
+        hologramCost = Math.max(0, config.getDouble("power.cost.hologram"));
+        hddReadCost = Math.max(0, config.getDouble("power.cost.hddRead")) / 1024;
+        hddWriteCost = Math.max(0, config.getDouble("power.cost.hddWrite")) / 1024;
+        gpuSetCost = Math.max(0, config.getDouble("power.cost.gpuSet")) / basicScreenPixels();
+        gpuFillCost = Math.max(0, config.getDouble("power.cost.gpuFill")) / basicScreenPixels();
+        gpuClearCost = Math.max(0, config.getDouble("power.cost.gpuClear")) / basicScreenPixels();
+        gpuCopyCost = Math.max(0, config.getDouble("power.cost.gpuCopy")) / basicScreenPixels();
         robotTurnCost = Math.max(0, config.getDouble("power.cost.robotTurn"));
         robotMoveCost = Math.max(0, config.getDouble("power.cost.robotMove"));
         robotExhaustionCost = Math.max(0, config.getDouble("power.cost.robotExhaustion"));
-        assemblerCost = Math.max(0, config.getDouble("power.cost.assemblerPerItem"));
-        chargeCostFactor = Math.max(0, config.getDouble("power.cost.chargeFactor"));
-        printerCost = Math.max(0, config.getDouble("power.cost.printer"));
-        nanomachineCost = Math.max(0, config.getDouble("power.cost.nanomachines"));
-        terminalServerCost = Math.max(0, config.getDouble("power.cost.terminalServer"));
+        List<Double> wirelessList = config.getDoubleList("power.cost.wirelessCostPerRange");
+        wirelessCostPerRange = wirelessList.size() == 2
+            ? new double[]{Math.max(0, wirelessList.get(0)), Math.max(0, wirelessList.get(1))}
+            : new double[]{0.05, 0.05};
+        abstractBusPacketCost = Math.max(0, config.getDouble("power.cost.abstractBusPacket"));
+        geolyzerScanCost = Math.max(0, config.getDouble("power.cost.geolyzerScan"));
+        robotBaseCost = Math.max(0, config.getDouble("power.cost.robotAssemblyBase"));
+        robotComplexityCost = Math.max(0, config.getDouble("power.cost.robotAssemblyComplexity"));
+        microcontrollerBaseCost = Math.max(0, config.getDouble("power.cost.microcontrollerAssemblyBase"));
+        microcontrollerComplexityCost = Math.max(0, config.getDouble("power.cost.microcontrollerAssemblyComplexity"));
+        tabletBaseCost = Math.max(0, config.getDouble("power.cost.tabletAssemblyBase"));
+        tabletComplexityCost = Math.max(0, config.getDouble("power.cost.tabletAssemblyComplexity"));
+        droneBaseCost = Math.max(0, config.getDouble("power.cost.droneAssemblyBase"));
+        droneComplexityCost = Math.max(0, config.getDouble("power.cost.droneAssemblyComplexity"));
+        disassemblerItemCost = Math.max(0, config.getDouble("power.cost.disassemblerPerItem"));
+        chunkloaderCost = Math.max(0, config.getDouble("power.cost.chunkloaderCost"));
+        pistonCost = Math.max(0, config.getDouble("power.cost.pistonPush"));
+        eepromWriteCost = Math.max(0, config.getDouble("power.cost.eepromWrite"));
+        printCost = Math.max(0, config.getDouble("power.cost.printerModel"));
+        hoverBootJump = Math.max(0, config.getDouble("power.cost.hoverBootJump"));
+        hoverBootAbsorb = Math.max(0, config.getDouble("power.cost.hoverBootAbsorb"));
+        hoverBootMove = Math.max(0, config.getDouble("power.cost.hoverBootMove"));
         dataCardTrivial = Math.max(0, config.getDouble("power.cost.dataCardTrivial"));
+        dataCardTrivialByte = Math.max(0, config.getDouble("power.cost.dataCardTrivialByte"));
         dataCardSimple = Math.max(0, config.getDouble("power.cost.dataCardSimple"));
+        dataCardSimpleByte = Math.max(0, config.getDouble("power.cost.dataCardSimpleByte"));
         dataCardComplex = Math.max(0, config.getDouble("power.cost.dataCardComplex"));
+        dataCardComplexByte = Math.max(0, config.getDouble("power.cost.dataCardComplexByte"));
         dataCardAsymmetric = Math.max(0, config.getDouble("power.cost.dataCardAsymmetric"));
         transposerCost = Math.max(0, config.getDouble("power.cost.transposer"));
-        generatorEfficiency = Math.max(0, config.getDouble("power.efficiency.generator"));
-        solarGeneratorEfficiency = Math.max(0, config.getDouble("power.efficiency.solarGenerator"));
-        abstractBusPacketCost = Math.max(0, config.getDouble("power.cost.abstractBusPacket"));
+        nanomachineCost = Math.max(0, config.getDouble("power.cost.nanomachineInput"));
+        nanomachineReconfigureCost = Math.max(0, config.getDouble("power.cost.nanomachinesReconfigure"));
+        mfuCost = Math.max(0, config.getDouble("power.cost.mfuRelay"));
 
         double valueInternal = 1000.0;
         double valueRedstoneFlux = config.hasPath("power.value.RedstoneFlux")

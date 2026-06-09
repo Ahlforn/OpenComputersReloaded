@@ -2,7 +2,16 @@ package li.cil.oc.server.driver;
 
 import li.cil.oc.OpenComputersMod;
 import li.cil.oc.api.driver.Converter;
+import li.cil.oc.api.driver.DriverBlock;
+import li.cil.oc.api.driver.DriverItem;
+import li.cil.oc.api.driver.EnvironmentProvider;
+import li.cil.oc.api.driver.InventoryProvider;
 import li.cil.oc.api.machine.Value;
+import li.cil.oc.api.network.ManagedEnvironment;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,16 +34,83 @@ import java.util.Map;
  */
 public final class Registry {
 
+    private static boolean locked = false;
+
     private static final List<Converter> converters = new ArrayList<>();
+    private static final List<DriverBlock> sidedBlocks = new ArrayList<>();
+    private static final List<DriverItem> items = new ArrayList<>();
+    private static final List<EnvironmentProvider> environmentProviders = new ArrayList<>();
+    private static final List<InventoryProvider> inventoryProviders = new ArrayList<>();
 
     private Registry() {
     }
 
+    /** Locks all registries — call after mod init. */
+    public static void lock() {
+        locked = true;
+    }
+
+    /** Register a block driver. Idempotent. */
+    public static void add(DriverBlock driver) {
+        if (locked) throw new IllegalStateException("Please register all drivers in the init phase.");
+        if (!sidedBlocks.contains(driver)) sidedBlocks.add(driver);
+    }
+
+    /** Register an item driver. Idempotent. */
+    public static void add(DriverItem driver) {
+        if (locked) throw new IllegalStateException("Please register all drivers in the init phase.");
+        if (!items.contains(driver)) items.add(driver);
+    }
+
     /** Register a type converter. Idempotent. */
     public static void add(Converter converter) {
+        if (locked) throw new IllegalStateException("Please register all converters in the init phase.");
         if (!converters.contains(converter)) {
             converters.add(converter);
         }
+    }
+
+    /** Register an environment provider. Idempotent. */
+    public static void add(EnvironmentProvider provider) {
+        if (locked) throw new IllegalStateException("Please register all environment providers in the init phase.");
+        if (!environmentProviders.contains(provider)) environmentProviders.add(provider);
+    }
+
+    /** Register an inventory provider. Idempotent. */
+    public static void add(InventoryProvider provider) {
+        if (locked) throw new IllegalStateException("Please register all inventory providers in the init phase.");
+        if (!inventoryProviders.contains(provider)) inventoryProviders.add(provider);
+    }
+
+    /** Find and wrap all block drivers matching this position. Returns null when none match. */
+    public static DriverBlock driverFor(Level world, BlockPos pos, Direction side) {
+        List<DriverBlock> matching = new ArrayList<>();
+        for (DriverBlock d : sidedBlocks) if (d.worksWith(world, pos, side)) matching.add(d);
+        if (matching.isEmpty()) return null;
+        return new CompoundBlockDriver(matching.toArray(new DriverBlock[0]));
+    }
+
+    /** Host-aware item driver lookup. */
+    public static DriverItem driverFor(ItemStack stack, Class<? extends li.cil.oc.api.network.EnvironmentHost> host) {
+        if (stack.isEmpty()) return null;
+        List<li.cil.oc.api.driver.item.HostAware> hostAware = new ArrayList<>();
+        for (DriverItem d : items) {
+            if (d instanceof li.cil.oc.api.driver.item.HostAware ha && ha.worksWith(stack)) hostAware.add(ha);
+        }
+        if (!hostAware.isEmpty()) {
+            for (li.cil.oc.api.driver.item.HostAware ha : hostAware) {
+                if (ha.worksWith(stack, host)) return (DriverItem) ha;
+            }
+            return null;
+        }
+        return driverFor(stack);
+    }
+
+    /** Simple item driver lookup. */
+    public static DriverItem driverFor(ItemStack stack) {
+        if (stack.isEmpty()) return null;
+        for (DriverItem d : items) if (d.worksWith(stack)) return d;
+        return null;
     }
 
     public static Object[] convert(Object[] value) {

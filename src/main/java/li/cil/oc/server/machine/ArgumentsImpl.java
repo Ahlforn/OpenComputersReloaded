@@ -1,7 +1,12 @@
 package li.cil.oc.server.machine;
 
 import li.cil.oc.api.machine.Arguments;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -14,10 +19,8 @@ import java.util.Map;
  * {@link Arguments} interface, preserving the original error-message wording and the integer/long
  * clamping behaviour (NaN throws; out-of-range clamps to MIN/MAX rather than wrapping).
  *
- * <p><b>Seam:</b> {@link #checkItemStack(int)} can parse the {name,damage,tag} table shape, but
- * {@code makeStack} (table&rarr;{@link ItemStack}, including NBT/data-component restoration) is not
- * ported — it depends on the 1.21.4 item registry + data components, which belong to the item-data
- * port, not component dispatch. No callback exercises it until block/item peripherals are ported.
+ * <p>{@link #checkItemStack(int)} parses the {name,damage,tag} table shape via the MC 26.1 item
+ * registry ({@link net.minecraft.core.registries.BuiltInRegistries#ITEM}) and data components.
  */
 public class ArgumentsImpl implements Arguments {
     private final Object[] args;
@@ -282,12 +285,14 @@ public class ArgumentsImpl implements Arguments {
         return value.getClass().getSimpleName();
     }
 
-    /**
-     * Seam: building an {@link ItemStack} from a Lua table requires the 1.21.4 item registry and
-     * data-component (formerly NBT) restoration, which is part of the item-data port. Not yet wired.
-     */
     private ItemStack makeStack(String name, int damage, Object tag) {
-        throw new UnsupportedOperationException(
-            "checkItemStack (table -> ItemStack) is not yet ported for 1.21.4; see ArgumentsImpl seam.");
+        var optItem = BuiltInRegistries.ITEM.getOptional(Identifier.parse(name));
+        if (optItem.isEmpty()) throw new IllegalArgumentException("invalid item stack");
+        var stack = new ItemStack(optItem.get(), 1);
+        if (damage > 0) stack.set(DataComponents.DAMAGE, damage);
+        if (tag instanceof CompoundTag compound) {
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(compound));
+        }
+        return stack;
     }
 }

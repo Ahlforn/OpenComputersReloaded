@@ -96,8 +96,20 @@ public class OpenComputersMod {
         // Phase 9: register SimpleComponentTickHandler on the game event bus.
         net.neoforged.neoforge.common.NeoForge.EVENT_BUS.register(SimpleComponentTickHandler.INSTANCE);
 
+        // SideTracker: capture server thread on start.
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(
+            li.cil.oc.util.SideTracker::onServerStarting);
+
+        // Core converters (vanilla ItemStack, NBT, World).
+        li.cil.oc.server.driver.Registry.add(new li.cil.oc.server.driver.converter.ConverterItemStack());
+        li.cil.oc.server.driver.Registry.add(new li.cil.oc.server.driver.converter.ConverterNBT());
+        li.cil.oc.server.driver.Registry.add(new li.cil.oc.server.driver.converter.ConverterWorld());
+
         // Wireless network: per-dimension R-tree cleanup on level/chunk events.
         li.cil.oc.server.network.WirelessNetwork.init();
+
+        // Lock the driver registry — no more registrations after setup.
+        li.cil.oc.server.driver.Registry.lock();
 
         // Waypoints: per-dimension spatial registry with R-tree.
         li.cil.oc.server.network.Waypoints.init();
