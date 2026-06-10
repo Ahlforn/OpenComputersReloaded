@@ -225,7 +225,7 @@ processResources {
 jar {
     manifest {
         attributes(
-            'Specification-Title'   : 'opencomputers',
+            'Specification-Title'   : 'opencomputersreloaded',
             'Specification-Vendor'  : 'Ahlforn',
             'Specification-Version' : '1',
             'Implementation-Title'  : project.name,

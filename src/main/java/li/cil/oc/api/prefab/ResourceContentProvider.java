@@ -1,6 +1,6 @@
 package li.cil.oc.api.prefab;
 
-import com.google.common.base.Charsets;
+import java.nio.charset.StandardCharsets;
 import li.cil.oc.api.manual.ContentProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
@@ -44,7 +44,7 @@ public class ResourceContentProvider implements ContentProvider {
         InputStream is = null;
         try {
             is = Minecraft.getInstance().getResourceManager().open(location);
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charsets.UTF_8));
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             final ArrayList<String> lines = new ArrayList<String>();
             String line;
             while ((line = reader.readLine()) != null) {

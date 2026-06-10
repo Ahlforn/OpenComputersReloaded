@@ -33,3 +33,13 @@
 /config
 /options.txt
 /usernamecache.json
+
+# AI Tools
+/.serena
+/.claude
+/CLAUDE.md
+/findings.md
+/plan.md
+/progress.md
+/task_plan.md
+/todo.md

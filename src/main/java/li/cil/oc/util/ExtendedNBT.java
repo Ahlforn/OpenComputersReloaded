@@ -1,6 +1,6 @@
 package li.cil.oc.util;
 
-import com.google.common.base.Charsets;
+import java.nio.charset.StandardCharsets;
 import com.mojang.serialization.DynamicOps;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.*;
@@ -159,7 +159,7 @@ public final class ExtendedNBT {
             }
             case TAG_STRING -> {
                 if (rawValue instanceof String s) yield StringTag.valueOf(s);
-                if (rawValue instanceof byte[] b) yield StringTag.valueOf(new String(b, Charsets.UTF_8));
+                if (rawValue instanceof byte[] b) yield StringTag.valueOf(new String(b, StandardCharsets.UTF_8));
                 throw new IllegalArgumentException("Illegal value for TAG_STRING.");
             }
             case TAG_LIST -> {

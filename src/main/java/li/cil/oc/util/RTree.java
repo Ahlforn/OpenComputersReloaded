@@ -112,6 +112,7 @@ public final class RTree<Data> {
             bounds = new Rectangle(Point.POSITIVE_INFINITY, Point.NEGATIVE_INFINITY);
         }
 
+        @SafeVarargs
         NonLeaf(Node... nodes) {
             this();
             for (Node child : nodes) {
